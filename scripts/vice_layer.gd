@@ -53,6 +53,8 @@ func _ready() -> void:
 	stars_ctrl.draw.connect(_draw_stars)
 	add_child(stars_ctrl)
 	await get_tree().process_frame
+	if not is_inside_tree():      # level was closed before the title card could show
+		return
 	gm = get_tree().get_first_node_in_group("game_manager")
 	if gm:
 		last_deaths = gm.deaths

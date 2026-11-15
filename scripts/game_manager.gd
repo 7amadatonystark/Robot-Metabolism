@@ -49,6 +49,8 @@ func _ready():
 	Look.add_grade(self)                   # one Vice Slime color grade over every level
 	add_child(ViceLayer.new())             # GTA VI parody layer (stars, BOUNCED, MISSION PASSED)
 	await get_tree().process_frame          # wait for the whole level to load
+	if not is_inside_tree():
+		return
 	refresh_players()
 	if player:
 		respawn_point = player.global_position
