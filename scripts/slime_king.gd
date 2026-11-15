@@ -1,5 +1,6 @@
 # ORIGIN: NEW, written by team (AI-assisted). Sprite = Brackeys slime (CC0), scaled + tinted.
-# THE SLIME KING: boss. You can ONLY hurt him by pogoing on his head (down-slash from above).
+# THE HAMSTER GODFATHER (boss): the scalper who bought every copy of the game.
+# (Originally the Slime King.) You can ONLY hurt him by pogoing on his head (down-slash from above).
 # Side hits just CLANK off. He hops at you and slams the ground; in phase 2 he spawns slimes.
 extends Node2D
 
@@ -11,7 +12,10 @@ const Portrait = preload("res://scripts/boss_portrait.gd")
 
 const MAX_HP := 10
 const GRAVITY := 900.0
-const SIZE := 3.5           # sprite scale
+const SIZE := 3.5           # hitbox scale (kept from the slime version)
+const BODY_TEX = preload("res://assets/hamsters/godfather.png")
+const MINION_GUARD = "lolli"
+const Guard = preload("res://scripts/guard.gd")   # phase 2 spawns lollipop hamsters
 
 var hp := MAX_HP
 var vel := Vector2.ZERO
@@ -38,13 +42,19 @@ var player
 func _ready() -> void:
 	floor_y = position.y
 	var tmp = SLIME_SCENE.instantiate()
-	sprite = AnimatedSprite2D.new()
-	sprite.sprite_frames = _purple_frames(tmp.get_node("AnimatedSprite2D").sprite_frames)
 	tmp.free()
+	sprite = AnimatedSprite2D.new()
+	var sf := SpriteFrames.new()
+	sf.add_frame("default", BODY_TEX)
+	sprite.sprite_frames = sf
 	sprite.scale = Vector2(SIZE, SIZE)
-	sprite.position = Vector2(0, -12 * SIZE)
+	sprite.offset = Vector2(0, -BODY_TEX.get_height() / 2.0)   # squash from the feet
 	sprite.play()
-	add_child(sprite)
+	var holder := Node2D.new()           # shrinks the 256 px drawing to about 84 px tall
+	holder.scale = Vector2.ONE * (24.0 / BODY_TEX.get_height())
+	holder.position = Vector2(0, 4)
+	add_child(holder)
+	holder.add_child(sprite)
 	# contact damage (reuses the Brackeys killzone)
 	var kz = KILLZONE_SCENE.instantiate()
 	var shape := CollisionShape2D.new()
@@ -106,7 +116,7 @@ func _physics_process(delta: float) -> void:
 		"sleep":
 			# wakes up when you get close
 			if absf(to_player) < 170.0:
-				_toast("THE SLIME KINGPIN AWAKENS", Color(0.85, 0.55, 1.0))
+				_toast("THE HAMSTER GODFATHER: \"THE LAST COPY IS MINE.\"", Color(0.85, 0.55, 1.0))
 				portrait.react("smug", 1.5)
 				state = "idle"
 				state_t = 1.0
@@ -161,7 +171,8 @@ func _slam() -> void:
 	# phase 2: spawn slimes
 	minions = minions.filter(func(m): return is_instance_valid(m))
 	if phase() == 2 and minions.size() < 3 and randf() < 0.6:
-		var m = SLIME_SCENE.instantiate()
+		var m = Guard.new()
+		m.kind = MINION_GUARD
 		m.position = position + Vector2(randf_range(-40, 40), 0)
 		get_parent().add_child(m)
 		minions.append(m)
@@ -186,7 +197,7 @@ func on_nail_hit(by: Node2D) -> void:
 		return
 	var from_above: bool = by.global_position.y < global_position.y - 9.0 * SIZE
 	var power: int = by.get("power") if by.get("power") != null else 1
-	var brute := power > 1 and not from_above     # ZOOM breaks his armor from the side
+	var brute: bool = (power > 1 or by.get("armor_break") == true) and not from_above     # ZOOM / power shots break his armor
 	if not from_above and not brute:
 		# CLANK: armor is too thick from the side
 		sfx_clank.pitch_scale = 0.6
@@ -211,7 +222,7 @@ func on_nail_hit(by: Node2D) -> void:
 	if gm:
 		gm._shake(3.0)
 	if before > MAX_HP / 2 and hp <= MAX_HP / 2:
-		_toast("THE KINGPIN IS FURIOUS", Color(1, 0.4, 0.4))
+		_toast("THE GODFATHER IS FURIOUS", Color(1, 0.4, 0.4))
 		portrait.set_base("enraged")
 		portrait.react("enraged", 1.0)
 		sprite.modulate = Color(1.0, 0.4, 0.6)
@@ -270,7 +281,7 @@ func _build_bar() -> void:
 	layer.visible = false
 	add_child(layer)
 	var name_l := Label.new()
-	name_l.text = "SLIME KINGPIN"
+	name_l.text = "THE HAMSTER GODFATHER"
 	name_l.add_theme_font_override("font", FONT)
 	name_l.add_theme_font_size_override("font_size", 16)
 	name_l.add_theme_color_override("font_outline_color", Color.BLACK)

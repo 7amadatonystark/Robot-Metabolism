@@ -36,6 +36,7 @@ var geo_label: Label
 var death_label: Label
 var last_drop := 0            # geo dropped at the last death
 var heat := 0.0               # SLIME ALERT: goes up when you fight, cools down over time
+var soul := 0.0               # SOUL (Hollow Knight): +11 per nail hit, power shot costs 33
 
 @onready var score_label = $ScoreLabel
 
@@ -160,6 +161,9 @@ func hit_enemy(enemy: Node, by: Node2D) -> void:
 	if not is_instance_valid(enemy) or enemy.has_meta("dying"):
 		return
 	heat += 1.0
+	if by.is_in_group("player"):
+		soul = minf(soul + 11.0, 99.0)
+		_update_hud()
 	if enemy.has_method("on_nail_hit"):     # bosses handle their own damage
 		enemy.on_nail_hit(by)
 		return
@@ -221,6 +225,8 @@ func _draw_masks() -> void:
 			var c: Dictionary = Characters.by_id(p.char_id)
 			hud.draw_string(FONT, Vector2(0, y + 5), "P%d %s" % [row + 1, c.get("name", "")], HORIZONTAL_ALIGNMENT_LEFT, -1, 8, P_COLORS[row % 3])
 			x0 = 92.0
+		if row == 0:
+			_draw_soul(x0)
 		var mx: int = p.pmax if p else MAX_MASKS
 		var cur: int = p.pmasks if p else MAX_MASKS
 		for i in mx:
@@ -231,6 +237,15 @@ func _draw_masks() -> void:
 			if full:
 				hud.draw_circle(c + Vector2(-3, -1), 1.6, Color.BLACK)
 				hud.draw_circle(c + Vector2(3, -1), 1.6, Color.BLACK)
+
+
+func _draw_soul(x0: float) -> void:
+	var x := x0 + 7 * 22 + 6
+	hud.draw_string(FONT, Vector2(x, 6), "SOUL", HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color(0.7, 0.9, 1))
+	hud.draw_rect(Rect2(x + 36, -2, 99, 12), Color.BLACK)
+	hud.draw_rect(Rect2(x + 37, -1, soul, 10), Color(0.55, 0.85, 1.0))
+	for k in [33, 66]:
+		hud.draw_line(Vector2(x + 37 + k, -1), Vector2(x + 37 + k, 9), Color.BLACK, 1.0)
 
 
 func _update_hud() -> void:

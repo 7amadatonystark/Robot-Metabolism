@@ -16,6 +16,16 @@ On the select screen press **R** (or **OPTIONS** on a PS4 pad). In the lobby, ea
 PS4 controls: stick/d-pad move · CROSS jump · SQUARE attack (hold down in the air = pogo) · CIRCLE or R1 dash.
 The camera zooms out to keep everyone and the boss on screen. When a player dies, their body becomes a trampoline for the team, and they bounce back at the bench 1 second later.
 
+### Story mode
+GTA VI drops today. Fight through the line of rival buyers (meme hamsters) across **The Docks → Neon Streets → The Roof** to the store, and beat **THE HAMSTER GODFATHER** (a scalper) for the **last copy**.
+Levels are text maps in `scripts/levels.gd`.
+
+### Skills
+| Key (keyboard / PS4) | Skill |
+|---|---|
+| L / TRIANGLE | **Special**: SPARK finger gun · ZOOM shoulder charge · BRAINS heal +1 mask |
+| I / R2 or L1 | **Power shot**: costs 1/3 of the SOUL meter (fill it by hitting things), piercing, 3 damage |
+
 ### Fighters
 | Fighter | Perk |
 |---|---|
@@ -47,8 +57,11 @@ The camera zooms out to keep everyone and the boss on screen. When a player dies
 | `scripts/killzone.gd` | Damage area. `leaves_body` on = enemy; off = hazard. `instant_kill` = death spikes |
 | `scripts/checkpoint.gd` + `scenes/checkpoint.tscn` | **Bench**: drag into a level (respawn here + heal) |
 | `scenes/boss_arena.tscn` + `scripts/boss_arena.gd` | Boss room "The Throne", built from Brackeys tiles (`assets/world_tileset.tres`) |
-| `scripts/slime_king.gd` | **Slime Kingpin** boss: hops, slams (jump the shockwave), spawns slimes in phase 2. Only pogo hits hurt him |
+| `scripts/slime_king.gd` | **Hamster Godfather** boss: hops, slams (jump the shockwave), spawns lollipop guards in phase 2. Pogo, ZOOM, or power shots hurt him; side nail hits CLANK |
 | `scenes/character_select.tscn` + `scripts/character_select.gd` | Home screen: CHOOSE YOUR FIGHTER (main scene) |
+| `scenes/story_level.tscn`, `scripts/story_level.gd`, `scripts/levels.gd` | Story levels built from text maps |
+| `scripts/city_backdrop.gd` | Parallax Vice Slime city behind every level (docks / streets / roof / store), drawn in code |
+| `scripts/guard.gd`, `scripts/projectile.gd`, `assets/hamsters/` | Hamster guards, power shots and sparks |
 | `scenes/raid_lobby.tscn`, `scripts/raid_lobby.gd`, `scripts/raid_camera.gd` | BOSS RAID co-op: join lobby + shared zooming camera |
 | `scripts/characters.gd` + `assets/characters/` | Fighter list, perks, animation mapping (rename fighters here) |
 | `scripts/boss_portrait.gd` + `assets/boss/` | Boss face next to the health bar that reacts (smug, angry, squashed, enraged, defeated). Drop hand-drawn PNGs in `assets/boss/` to replace the placeholder |

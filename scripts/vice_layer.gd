@@ -18,6 +18,8 @@ const MEMES := [
 
 var gm
 var stars := 0
+var custom_title := ""       # story levels set these for their title card
+var custom_line := ""
 var last_deaths := 0
 var stars_ctrl: Control
 var t := 0.0
@@ -116,6 +118,11 @@ func mission_passed() -> void:
 
 
 func title_card() -> void:
+	if custom_title != "":
+		_flash_text(custom_title, Color(1, 0.8, 0.3), 32, Vector2(0, -60), 3.0)
+		_flash_text(custom_line, Color.WHITE, 12, Vector2(0, -10), 3.0)
+		_flash_text(MEMES.pick_random(), Color(1, 0.6, 0.85), 8, Vector2(0, 20), 3.0)
+		return
 	_flash_text(GAME_TITLE, Color(1, 0.45, 0.75), 56, Vector2(0, -60), 2.6)
 	_flash_text(MEMES.pick_random(), Color.WHITE, 12, Vector2(0, 10), 2.6)
 

@@ -1,5 +1,5 @@
 # ORIGIN: NEW, written by team (AI-assisted). Uses the Brackeys tileset (CC0).
-# BOSS ARENA: "The Throne". Builds the room out of Brackeys tiles, then wakes the Slime King.
+# BOSS ARENA: the store's rooftop at sunset (Brackeys tiles), where the Hamster Godfather guards the LAST COPY.
 extends Node2D
 
 const TILESET = preload("res://assets/world_tileset.tres")
@@ -7,14 +7,17 @@ const SlimeKing = preload("res://scripts/slime_king.gd")
 const BENCH = preload("res://scenes/checkpoint.tscn")
 const PLAYER_SCENE = preload("res://scenes/player.tscn")
 const RaidCamera = preload("res://scripts/raid_camera.gd")
+const CityBackdrop = preload("res://scripts/city_backdrop.gd")
 
 const W := 40          # arena width in tiles
 const H := 14          # wall height in tiles
-const STONE_TOP := Vector2i(8, 0)
-const STONE := Vector2i(8, 1)
+const STONE_TOP := Vector2i(2, 0)     # sand
+const STONE := Vector2i(2, 1)
+const WALL := Vector2i(5, 1)          # pink brick
 const BRICK_TOP := Vector2i(5, 0)
-const BG_DARK := Vector2i(3, 15)
-const BG_MID := Vector2i(3, 13)
+const SUNSET_COL := 2                 # pink/purple sky column in the tileset (rows 9-15)
+const WATER_TOP := Vector2i(4, 9)
+const WATER := Vector2i(4, 10)
 
 var tilemap: TileMap
 
@@ -72,19 +75,20 @@ func _build_room() -> void:
 	tilemap.add_layer(-1)   # layer 1 = solid
 	add_child(tilemap)
 	move_child(tilemap, 0)
-	# background
-	for x in range(-10, W + 10):
-		for y in range(-H - 8, 6):
-			var tile := BG_DARK if y > -H + 3 else BG_MID
-			tilemap.set_cell(0, Vector2i(x, y), 0, tile)
-	# floor (2 rows) + walls
+	tilemap.add_layer(-1)   # layer 2 = decoration (palms)
+	# Vice Slime skyline at sunset with the store's giant GAMES sign
+	var bd = CityBackdrop.new()
+	bd.style = "store"
+	add_child(bd)
+	# floor (sand) + walls (brick)
 	for x in range(0, W):
 		tilemap.set_cell(1, Vector2i(x, 0), 0, STONE_TOP)
 		for y in range(1, 4):
 			tilemap.set_cell(1, Vector2i(x, y), 0, STONE)
 	for y in range(-H, 1):
 		for x in [0, 1, W - 2, W - 1]:
-			tilemap.set_cell(1, Vector2i(x, y), 0, STONE)
+			tilemap.set_cell(1, Vector2i(x, y), 0, WALL)
+
 	# floating platforms (pink brick = the old castle)
 	for p in [[7, -4, 4], [W - 11, -4, 4], [17, -8, 6]]:
 		for x in range(p[0], p[0] + p[2]):

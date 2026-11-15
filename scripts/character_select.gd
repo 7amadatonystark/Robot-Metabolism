@@ -7,7 +7,7 @@ const Characters = preload("res://scripts/characters.gd")
 const FONT = preload("res://assets/fonts/PixelOperator8-Bold.ttf")
 const MUSIC = preload("res://scenes/music.tscn")
 const GAME_TITLE := "VICE SLIME"
-const FIRST_LEVEL := "res://scenes/level_1.tscn"
+const FIRST_LEVEL := "res://scenes/story_level.tscn"
 const FALLBACK_LEVEL := "res://scenes/game.tscn"
 const BOSS := "res://scenes/boss_arena.tscn"
 const RAID_LOBBY := "res://scenes/raid_lobby.tscn"
@@ -97,7 +97,8 @@ func _build() -> void:
 		sprites.append(spr)
 		card.add_child(_label(c.name, 24, Color(1, 0.85, 0.3), Vector2(0, 262), CARD.x))
 		card.add_child(_label(c.tagline, 12, Color(0.9, 0.9, 1), Vector2(10, 296), CARD.x - 20))
-		card.add_child(_label(c.perk, 12, Color(0.6, 1, 0.7), Vector2(10, 326), CARD.x - 20))
+		card.add_child(_label(c.perk, 8, Color(0.6, 1, 0.7), Vector2(10, 322), CARD.x - 20))
+		card.add_child(_label("SPECIAL: " + c.special, 8, Color(1, 0.75, 0.4), Vector2(10, 350), CARD.x - 20))
 	ui.add_child(_label("< >  pick      ENTER / CROSS  play      B  boss fight      R / OPTIONS  BOSS RAID (co-op)", 12, Color.WHITE, Vector2(0, 562), 1152))
 	ui.add_child(_label("Every death gets you higher.", 12, Color(1, 1, 1, 0.7), Vector2(0, 600), 1152))
 
@@ -176,6 +177,8 @@ func _start(scene: String) -> void:
 	starting = true
 	Engine.set_meta("character", Characters.LIST[selected].id)
 	Engine.set_meta("raid", [])         # single player
+	Engine.set_meta("level_index", 1)
+	Engine.set_meta("total_deaths", 0)
 	sfx_pick.play()
 	var tw := create_tween()
 	tw.tween_property(cards[selected], "scale", Vector2.ONE * 1.15, 0.12)

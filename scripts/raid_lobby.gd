@@ -41,7 +41,7 @@ func _ready() -> void:
 	sky.size = Vector2(1152, 648)
 	ui.add_child(sky)
 	ui.add_child(_label("BOSS RAID", 48, Color(1, 0.85, 0.3), Vector2(0, 20), 1152))
-	ui.add_child(_label("Take down the Slime Kingpin together. Your bodies are your teammates' trampolines.", 12, Color.WHITE, Vector2(0, 84), 1152))
+	ui.add_child(_label("Fight the Hamster Godfather together for the LAST COPY of GTA VI. Your bodies are your teammates' trampolines.", 12, Color.WHITE, Vector2(0, 84), 1152))
 	hint = _label("", 16, Color.WHITE, Vector2(0, 560), 1152)
 	ui.add_child(hint)
 	ui.add_child(_label("PS4: CROSS join - LEFT/RIGHT fighter - CIRCLE leave - OPTIONS start      KEYBOARD: ENTER join/start - A/D - ESC back", 8, Color(1, 1, 1, 0.75), Vector2(0, 604), 1152))

@@ -4,6 +4,8 @@
 extends CharacterBody2D
 
 const Characters = preload("res://scripts/characters.gd")
+const Projectile = preload("res://scripts/projectile.gd")
+const SOUL_COST := 33.0
 
 
 const SPEED = 130.0
@@ -45,6 +47,9 @@ var player_index := 0
 var pmasks := 5                    # this player's masks (health)
 var pmax := 5
 var is_dead := false
+var special_cd := 0.0              # special skill cooldown (L / TRIANGLE)
+var charging := false              # ZOOM shoulder charge in progress
+var charge_hits := {}
 
 @onready var animated_sprite = $AnimatedSprite2D
 @onready var collision = $CollisionShape2D
@@ -78,6 +83,8 @@ const PAD := {
 	"jump": [JOY_BUTTON_A],
 	"attack": [JOY_BUTTON_X],
 	"dash": [JOY_BUTTON_B, JOY_BUTTON_RIGHT_SHOULDER],
+	"special": [JOY_BUTTON_Y],
+	"power": [[JOY_AXIS_TRIGGER_RIGHT, 1.0], JOY_BUTTON_LEFT_SHOULDER],
 }
 
 
@@ -101,7 +108,8 @@ func _setup_inputs() -> void:
 		# co-op keyboard player: keyboard only, so the pads don't move them too
 		prefix = "kb_"
 		var kb := {"move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT], "move_up": [KEY_W, KEY_UP],
-			"move_down": [KEY_S, KEY_DOWN], "jump": [KEY_SPACE], "attack": [KEY_J, KEY_X], "dash": [KEY_K, KEY_C, KEY_SHIFT]}
+			"move_down": [KEY_S, KEY_DOWN], "jump": [KEY_SPACE], "attack": [KEY_J, KEY_X], "dash": [KEY_K, KEY_C, KEY_SHIFT],
+			"special": [KEY_L], "power": [KEY_I]}
 		for action in kb:
 			if not InputMap.has_action(prefix + action):
 				InputMap.add_action(prefix + action)
@@ -123,6 +131,8 @@ func _setup_inputs() -> void:
 		"dash": [KEY_K, KEY_C, KEY_SHIFT],
 		"move_up": [KEY_W, KEY_UP],
 		"move_down": [KEY_S, KEY_DOWN],
+		"special": [KEY_L],
+		"power": [KEY_I],
 	}
 	for action in keys:
 		if not InputMap.has_action(action):
@@ -172,6 +182,7 @@ func _physics_process(delta):
 	dash_cd = maxf(dash_cd - delta, 0.0)
 	slash_t = maxf(slash_t - delta, 0.0)
 	attack_anim_t = maxf(attack_anim_t - delta, 0.0)
+	special_cd = maxf(special_cd - delta, 0.0)
 	stun = maxf(stun - delta, 0.0)
 	animated_sprite.modulate.a = 0.45 if (invuln > 0.0 and int(invuln * 20) % 2 == 0) else 1.0
 	queue_redraw()
@@ -181,8 +192,12 @@ func _physics_process(delta):
 	# DASH (Hollow Knight: Mothwing Cloak)
 	if dash_t > 0.0:
 		dash_t -= delta
-		velocity = Vector2(facing * DASH_SPEED, 0)
+		velocity = Vector2(facing * DASH_SPEED * (1.15 if charging else 1.0), 0)
 		move_and_slide()
+		if charging:
+			_charge_hits()
+			if dash_t <= 0.0:
+				charging = false
 		return
 
 	# Add the gravity.
@@ -227,6 +242,10 @@ func _physics_process(delta):
 
 	if Input.is_action_just_pressed(_act("attack")) and attack_cd <= 0.0:
 		_attack()
+	if Input.is_action_just_pressed(_act("special")):
+		_special()
+	if Input.is_action_just_pressed(_act("power")):
+		_power_shot()
 
 	# Play animations
 	if custom_char and attack_anim_t > 0.0:
@@ -323,6 +342,92 @@ func _attack() -> void:
 			_squash()
 		elif dir.x != 0:
 			velocity.x = -facing * (60.0 if power > 1 else 120.0)     # nail recoil (brutes barely flinch)
+
+
+# ---------------- POWER SHOT (I / R2 or L1): costs 1/3 of the SOUL meter ----------------
+func _power_shot() -> void:
+	var gm = get_tree().get_first_node_in_group("game_manager")
+	if gm == null:
+		return
+	if gm.soul < SOUL_COST:
+		gm._toast("NEED SOUL: hit enemies first")
+		return
+	gm.soul -= SOUL_COST
+	gm._update_hud()
+	_fire(Vector2(facing, 0), 3, 380.0, true, true, 8.0, Color(0.55, 0.85, 1.0))
+	velocity.x -= facing * 90.0
+	sfx_bounce.pitch_scale = 0.7
+	sfx_bounce.play()
+	attack_anim_t = 0.3
+
+
+func _fire(dir: Vector2, dmg: int, spd: float, pierce: bool, armor: bool, r: float, col: Color) -> void:
+	var p = Projectile.new()
+	p.velocity = dir * spd
+	p.power = dmg
+	p.pierce = pierce
+	p.armor_break = armor
+	p.radius = r
+	p.color = col
+	p.owner_player = self
+	p.global_position = global_position + Vector2(facing * 12, -10)
+	get_tree().current_scene.add_child(p)
+
+
+# ---------------- SPECIAL SKILL (L / TRIANGLE): different for every fighter ----------------
+func _special() -> void:
+	if special_cd > 0.0:
+		return
+	var c: Dictionary = Characters.by_id(char_id) if char_id != "" else Characters.get_selected()
+	var gm = get_tree().get_first_node_in_group("game_manager")
+	match c.get("id", ""):
+		"spark":   # FINGER GUN: 3 quick sparks
+			special_cd = 2.5
+			attack_anim_t = 0.45
+			for i in 3:
+				_fire(Vector2(facing, randf_range(-0.08, 0.08)).normalized(), 1, 420.0, false, false, 4.0, Color(1.0, 0.7, 0.2))
+				sfx_slash.pitch_scale = 1.6
+				sfx_slash.play()
+				await get_tree().create_timer(0.09).timeout
+		"zoom":    # SHOULDER CHARGE: unstoppable dash that smashes everything in the way
+			special_cd = 3.0
+			charging = true
+			charge_hits.clear()
+			dash_t = 0.3
+			invuln = maxf(invuln, 0.35)
+			attack_anim_t = 0.35
+			if gm: gm._toast("SHOULDER CHARGE!")
+		"brains":  # BIG BRAIN HEAL: +1 mask
+			if pmasks >= pmax:
+				if gm: gm._toast("Already at full masks")
+				return
+			special_cd = 10.0
+			pmasks += 1
+			if gm:
+				gm._toast("BIG BRAIN HEAL +1")
+				gm._update_hud()
+			sfx_bounce.pitch_scale = 1.5
+			sfx_bounce.play()
+		_:
+			if gm: gm._toast("This fighter has no special")
+
+
+func _charge_hits() -> void:
+	var q := PhysicsShapeQueryParameters2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = Vector2(20, 18)
+	q.shape = rect
+	q.transform = Transform2D(0.0, global_position + Vector2(facing * 10, -9))
+	q.collide_with_areas = true
+	q.exclude = [get_rid()]
+	var gm = get_tree().get_first_node_in_group("game_manager")
+	for h in get_world_2d().direct_space_state.intersect_shape(q, 8):
+		var col = h.collider
+		if col and col.get_script() and col.get_script().resource_path.ends_with("killzone.gd"):
+			var enemy = col.get_parent()
+			if enemy != get_tree().current_scene and not charge_hits.has(enemy) and gm:
+				charge_hits[enemy] = true
+				gm.hit_enemy(enemy, self)
 
 
 # BOUNCE BACK: landed on top of one of your old bodies? Launch!

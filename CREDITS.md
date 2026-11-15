@@ -10,7 +10,7 @@
 - **Brackeys Platformer Bundle** (CC0): https://brackeysgames.itch.io/brackeys-platformer-bundle
   - Sprites from asset packs credited by Brackeys; music by Sofia Thirslund; sounds by Asbjørn Thirslund; font by Jayvee Enaguas (HarvettFox96).
 - All files in `assets/` are byte-for-byte identical to the Brackeys originals (checked).
-- **Boss portraits** (`assets/boss/portrait_*.png`): cut from an expression sheet supplied by the team. **Source/artist: TODO, fill in who made it.**
+- **Hamster guards + Hamster Godfather + boss portraits** (`assets/hamsters/`, `assets/boss/`): cut from meme drawings supplied by the team. **Source/artist: TODO, fill in.**
 - **Fighters SPARK / ZOOM / BRAINS** (`assets/characters/`): cut from 3 character sheets supplied by the team. **Source/artist: TODO, fill in who made them.**
 - (Add any Kenney CC0 assets you use here.)
 
@@ -27,6 +27,8 @@
 | `scripts/boss_arena.gd`, `slime_king.gd`, `ending.gd`, `vice_layer.gd`, `scenes/boss_arena.tscn` | New: boss, ending, GTA-parody layer (text and colors only; Brackeys sprites and tiles) |
 | `scripts/characters.gd`, `scripts/character_select.gd`, `scenes/character_select.tscn` | New: fighter select + per-fighter perks/animations |
 | `scripts/raid_lobby.gd`, `scripts/raid_camera.gd`, `scenes/raid_lobby.tscn` | New: local co-op BOSS RAID |
+| `scripts/story_level.gd`, `scripts/levels.gd`, `scripts/guard.gd`, `scripts/projectile.gd`, `scenes/story_level.tscn` | New: story mode, guards, specials, power shot |
+| `scripts/city_backdrop.gd` | New: city skyline background drawn in code (original, no images) |
 | `assets/world_tileset.tres` | Brackeys tileset, exported from `game.tscn` so other scenes can use it |
 | `tests/*` | New: test and demo tools (not part of the game) |
 
