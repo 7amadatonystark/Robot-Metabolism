@@ -52,6 +52,10 @@ func _run() -> void:
 	check(not paused and not menu.overlay.visible, "CIRCLE resumes")
 	pad(JOY_BUTTON_START)
 	check(paused, "OPTIONS pauses")
+	pad(JOY_BUTTON_A)
+	await process_frame
+	check(not paused, "CROSS activates focused Resume")
+	pad(JOY_BUTTON_START)
 	key(KEY_ESCAPE)
 	check(not paused, "Escape resumes")
 	menu.open_pause()
@@ -78,6 +82,12 @@ func _run() -> void:
 	pad(JOY_BUTTON_START)
 	check(paused, "OPTIONS pauses co-op boss")
 	menu.close_pause()
+	await scene("res://scenes/story_level.tscn")
+	check(get_nodes_in_group("player").size() == 2, "current co-op story retains both players")
+	pad(JOY_BUTTON_START)
+	check(paused, "OPTIONS pauses co-op story")
+	await scene("res://scenes/character_select.tscn")
+	check(not paused and not menu.overlay.visible, "external scene change clears pause")
 	Engine.set_meta("raid", [])
 	root.get_node("Music").stop()
 	await create_timer(0.1).timeout
