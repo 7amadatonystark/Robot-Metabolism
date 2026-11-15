@@ -81,7 +81,8 @@ func set_checkpoint(pos: Vector2) -> void:
 func player_hit(from_pos: Vector2, hazard := false, who = null) -> void:
 	if who == null:
 		who = player
-	if who == null or who.is_dead or who.invuln > 0.0:
+	# (Mazen's fix) pits/hazards still count during hit immunity, or you'd fall forever
+	if who == null or who.is_dead or who.has_meta("spawn_guard") or (who.invuln > 0.0 and not hazard):
 		return
 	who.pmasks -= 1
 	_update_hud()
@@ -123,8 +124,15 @@ func player_died(leave_body := true, who = null) -> void:
 	if players.size() > 1:
 		await get_tree().create_timer(1.2).timeout   # co-op: short wait, then bounce back at the bench
 	who.pmasks = who.pmax
+	who.set_meta("spawn_guard", true)
 	who.respawn(respawn_point + Vector2(who.player_index * 14, 0))
 	_update_hud()
+	# (Mazen's fix) keep damage blocked until the teleported player's collider has synced
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	await get_tree().process_frame
+	if is_instance_valid(who):
+		who.remove_meta("spawn_guard")
 	dead = players.any(func(p): return p.is_dead)
 
 

@@ -22,6 +22,9 @@ Read `/AGENTS.md` first (hard rules + progress report). Branch name: `mazen/ui-f
 - **Every screen must work with a PS4 pad**: d-pad / stick to move, CROSS to confirm, CIRCLE to go back, OPTIONS = pause in game.
 - You can't edit protected scripts, so react from **your own** scripts (autoloads or nodes that watch values each frame).
 
+## Already merged from your branch (thanks!)
+Title screen `scenes/menu.tscn` (now the main scene → fighter select), `Stats` autoload + `level_stats.gd`, your pit-during-immunity fix and both tests. **Your old branch started from an outdated `main`, so start fresh:** `git checkout main && git pull && git checkout -B mazen/ui-feel-2`.
+
 ## Tasks (in order; one PR each; report after each)
 1. **Story intro:** `scenes/intro.tscn` + `scripts/intro.gd`. Black screen; show each line of `Levels.STORY` one by one (typewriter or fade); "Press any key / CROSS". Then start the story (see above). The select screen already goes to `scenes/intro.tscn` automatically as soon as that file exists.
 2. **Pause menu:** autoload `PauseMenu` (`scripts/pause_menu.gd`, add it to `project.godot` [autoload]). Esc or OPTIONS pauses during levels and the boss (not on the select screen or lobby). Buttons: Resume / Restart level (`reload_current_scene`) / Change fighter (`scenes/character_select.tscn`). Works with pad + mouse + keyboard. Process mode ALWAYS.
