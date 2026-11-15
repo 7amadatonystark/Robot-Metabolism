@@ -44,3 +44,15 @@ Publication blocker: automatic approval review rejected git push to origin becau
 considered export of potentially private code to this GitHub remote not explicitly
 authorized. No retry or alternative upload will be attempted without explicit approval.
 Local commits, per-task PR drafts and final patch bundle will remain available for review.
+
+## Task 3 — game feel extras
+GameFeel observes each player's masks and launch velocity after player physics. Body
+launches show BOING and CPUParticles2D dust; downward slash launches show white sparks;
+mask decreases flash white for 0.05 s. Effects are children of the current world scene,
+expire automatically, and don't alter movement/damage. Spawn/heals do not flash.
+SceneTransition observes outgoing tree_exiting and incoming scene identity. Because
+protected scene callers cannot be changed or delayed, the black dip covers the swap
+and fades in the new scene; it does not hold the outgoing scene for a full pre-swap fade.
+The overlay always processes, never takes mouse focus, and restarts on rapid swaps.
+Human: bounce on a body, pogo a hamster, take damage as either raid player, then change
+fighter/restart and watch the short black dip. No new image/audio assets were created.
