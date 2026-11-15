@@ -11,7 +11,16 @@ var ok := {}
 var gm
 var ps: Array = []
 
+var wait := 0
+
 func _physics_process(_d):
+	# wait until the raid has spawned all 3 players (load time varies)
+	if f == 0:
+		wait += 1
+		gm = get_first_node_in_group("game_manager")
+		if (gm == null or gm.players.size() < 3) and wait < 120:
+			return
+		f = 9
 	f += 1
 	if f == 10:
 		gm = get_first_node_in_group("game_manager")
