@@ -1,5 +1,11 @@
 # Mazen import and publication — 2026-11-15
 
+## Final upstream status
+
+While publication finished, the repository owner integrated the pause/effects/controls stack in main commit 167e2c8, then added level work and a scene-close guard through 6481258. PR #5 is merged by upstream. PR #6 was closed as redundant because its effects are already included in 167e2c8. PR #7 was retargeted to main and renamed **Keep controls card inside small windows**; its remaining diff is only the compact layout adjustment and validation documentation. It is open and mergeable. This agent did not merge or push main.
+
+The game is running from mazen/ui-feel-current in the original clone. This tested snapshot is based on 97c272c plus the reconciled UI work; later upstream level changes remain preserved on origin/main and were not applied underneath the active playtest. The review order below records the original publication stack and is superseded by these final PR statuses.
+
 ## Outcome
 
 GitHub authenticated through Git Credential Manager's browser flow as maztard. Bundle verified and published unchanged; task PRs opened without merging or pushing main. The combined mazen/ui-feel-current branch contains all reconciled work and this report.
