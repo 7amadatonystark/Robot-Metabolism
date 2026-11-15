@@ -33,6 +33,10 @@ Open Godot 4.3+, click **Import**, select `project.godot`, then press **F5**.
 | `scripts/body_pad.gd` | Your body: solid, bouncy, holds your geo (glowing dot) |
 | `scripts/killzone.gd` | Damage area. `leaves_body` on = enemy; off = hazard. `instant_kill` = death spikes |
 | `scripts/checkpoint.gd` + `scenes/checkpoint.tscn` | **Bench**: drag into a level (respawn here + heal) |
+| `scenes/boss_arena.tscn` + `scripts/boss_arena.gd` | Boss room "The Throne", built from Brackeys tiles (`assets/world_tileset.tres`) |
+| `scripts/slime_king.gd` | **Slime Kingpin** boss: hops, slams (jump the shockwave), spawns slimes in phase 2. Only pogo hits hurt him |
+| `scripts/ending.gd` | After the boss: MISSION PASSED, then all your old bodies stand up. "They all got back up." |
+| `scripts/vice_layer.gd` | GTA VI parody layer: sunset tint, SLIME ALERT stars, BOUNCED death screen, MISSION PASSED, meme title card. Game title constant lives here |
 | `tests/test_bounce.gd`, `tests/test_hk.gd` | Automatic tests: `godot --headless -s tests/<file>.gd` should print `RESULT: PASS` |
 | `export_presets.cfg` | Web export preset (Project → Export → Web) |
 

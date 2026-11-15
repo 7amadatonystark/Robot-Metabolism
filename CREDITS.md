@@ -21,6 +21,8 @@
 | `scripts/game_manager.gd` | Brackeys base + team additions (masks, geo, benches, hazard respawn, enemy HP, bodies, HUD) |
 | `scripts/killzone.gd` | Brackeys base + team additions (damage instead of reload; hazard / death-spike options) |
 | `scripts/body_pad.gd`, `scripts/checkpoint.gd` (bench), `scenes/checkpoint.tscn` | New: our mechanics |
+| `scripts/boss_arena.gd`, `slime_king.gd`, `ending.gd`, `vice_layer.gd`, `scenes/boss_arena.tscn` | New: boss, ending, GTA-parody layer (text and colors only; Brackeys sprites and tiles) |
+| `assets/world_tileset.tres` | Brackeys tileset, exported from `game.tscn` so other scenes can use it |
 | `tests/*` | New: test and demo tools (not part of the game) |
 
 Team additions were written with AI coding help, which our local event allows for code. Every script starts with an `ORIGIN:` comment saying where it came from.

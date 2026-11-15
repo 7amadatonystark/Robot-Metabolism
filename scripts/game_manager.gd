@@ -6,6 +6,7 @@
 extends Node
 
 const BodyPad = preload("res://scripts/body_pad.gd")
+const ViceLayer = preload("res://scripts/vice_layer.gd")
 const FONT = preload("res://assets/fonts/PixelOperator8-Bold.ttf")
 const MAX_BODIES := 25
 const MAX_MASKS := 5
@@ -21,6 +22,8 @@ var bodies: Array = []
 var hud: Control
 var geo_label: Label
 var death_label: Label
+var last_drop := 0            # geo dropped at the last death
+var heat := 0.0               # SLIME ALERT: goes up when you fight, cools down over time
 
 @onready var score_label = $ScoreLabel
 
@@ -28,10 +31,15 @@ var death_label: Label
 func _ready():
 	add_to_group("game_manager")
 	_build_hud()
+	add_child(ViceLayer.new())             # GTA VI parody layer (stars, BOUNCED, MISSION PASSED)
 	await get_tree().process_frame          # wait for the whole level to load
 	player = get_tree().get_first_node_in_group("player")
 	if player:
 		respawn_point = player.global_position
+
+
+func _process(delta: float) -> void:
+	heat = maxf(heat - delta * 0.25, 0.0)
 
 
 func add_point():
@@ -77,6 +85,7 @@ func player_died(leave_body := true) -> void:
 		where = player.last_safe      # died falling into a pit: body appears at the edge
 	var facing_left: bool = player.animated_sprite.flip_h
 	var dropped: int = score
+	last_drop = dropped
 	score = 0
 	player.die()
 	_update_hud()
@@ -118,6 +127,10 @@ func reclaim_geo(body) -> void:
 # ---------------- ENEMIES ----------------
 func hit_enemy(enemy: Node, by: Node2D) -> void:
 	if not is_instance_valid(enemy) or enemy.has_meta("dying"):
+		return
+	heat += 1.0
+	if enemy.has_method("on_nail_hit"):     # bosses handle their own damage
+		enemy.on_nail_hit(by)
 		return
 	var hp: int = enemy.get_meta("hp", ENEMY_HP) - 1
 	enemy.set_meta("hp", hp)
