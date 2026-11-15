@@ -37,6 +37,8 @@ func radius() -> float:
 # Speed is relative to the player: hunters are almost as fast as you, prey a bit slower.
 func speed() -> float:
 	var base: float = game.player.speed() if game.player else 200.0
+	if game.is_attract():
+		base = 200.0
 	return base * (0.8 if edible() else 0.93)
 
 func edible() -> bool:
@@ -47,13 +49,14 @@ func _process(delta: float) -> void:
 	t += delta
 	flash = maxf(flash - delta * 5.0, 0.0)
 	queue_redraw()
-	if not game.is_playing():
+	var attract: bool = game.is_attract()   # title screen: just roam around
+	if not game.is_playing() and not attract:
 		return
 
 	var to: Vector2 = game.player.position - position
 	var d := to.length()
 	var desired := Vector2.ZERO
-	if d < 520.0:
+	if d < 520.0 and not attract:
 		desired = (-to if edible() else to).normalized()     # flee or chase
 	else:
 		wander_t -= delta
@@ -69,7 +72,7 @@ func _process(delta: float) -> void:
 
 	# Dangerous enemies with cannons shoot back
 	var cannons := count(DB.CANNON)
-	if cannons > 0 and not edible() and d < 450.0:
+	if cannons > 0 and not edible() and d < 450.0 and not attract:
 		fire_cd -= delta
 		if fire_cd <= 0.0:
 			game.spawn_bullet(position, to.normalized(), false, 1.0)

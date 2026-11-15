@@ -17,8 +17,9 @@ const EnemyScript = preload("res://scripts/enemy.gd")
 const ScrapScript = preload("res://scripts/scrap.gd")
 const BulletScript = preload("res://scripts/bullet.gd")
 const FloatTextScript = preload("res://scripts/float_text.gd")
+const Mut = preload("res://scripts/mutations.gd")
 
-enum State { TITLE, PLAY, DEAD }
+enum State { TITLE, PLAY, CHOOSE, DEAD }
 var state := State.TITLE
 
 var world: Node2D
@@ -37,6 +38,13 @@ var dead_time := 0.0
 var combo := 0
 var combo_t := 0.0
 var scrap_t := 0.0
+var score := 0
+var frenzy := 0            # robots eaten in a quick chain -> score multiplier
+var frenzy_t := 0.0
+var milestone_i := 0
+var megabot_time := -1.0   # seconds it took to reach MEGABOT, -1 = not yet
+var card_box: HBoxContainer
+var card_choices: Array = []
 var autopilot := false     # run with: godot -- --bot   (used for testing)
 
 var ui_stats: Label
@@ -70,6 +78,9 @@ func _ready() -> void:
 func is_playing() -> bool:
 	return state == State.PLAY
 
+func is_attract() -> bool:
+	return state == State.TITLE
+
 
 # ------------------------------------------------------------------ game flow
 func _reset_world() -> void:
@@ -81,6 +92,10 @@ func _reset_world() -> void:
 	elapsed = 0.0
 	eaten = 0
 	best_mass = 1
+	score = 0
+	frenzy = 0
+	milestone_i = 0
+	megabot_time = -1.0
 	player = PlayerScript.new()
 	player.game = self
 	player.core_color = PLAYER_CORE
@@ -97,19 +112,20 @@ func _start() -> void:
 	state = State.PLAY
 	ui_title.text = ""
 	ui_body.text = ""
+	card_box.visible = false
 	play_sfx("start")
 
 
 func _show_title() -> void:
 	state = State.TITLE
 	ui_title.text = GAME_TITLE
-	ui_body.text = TAGLINE + "\n\nWASD / Arrows / hold Mouse to move\nTouch loose parts to bolt them on\nGREEN ring = eat it     RED ring = run!\n\nWHEEL +speed   CLAW +bite   MAGNET +pull   CANNON +gun\n\nPress ENTER or click to start"
+	ui_body.text = TAGLINE + "\n\nWASD / Arrows / hold Mouse to move\nTouch loose parts to bolt them on     SPACE / Right-click = DASH\nGREEN ring = eat it     RED ring = run!\n\nWHEEL +speed   CLAW +bite   MAGNET +pull   CANNON +gun\nGrow to pick MUTATIONS. Reach size %d to become MEGABOT!\n\nPress ENTER or click to start" % Mut.MEGABOT_SIZE
 
 
 func _game_over() -> void:
 	state = State.DEAD
 	dead_time = 0.0
-	var score := best_mass * 10 + eaten * 25 + int(elapsed)
+	score += best_mass * 10
 	var new_best := score > highscore
 	if new_best:
 		highscore = score
@@ -119,11 +135,18 @@ func _game_over() -> void:
 	shake = 25.0
 	play_sfx("explode", 3.0, 0.7)
 	ui_title.text = "SCRAPPED!"
-	ui_body.text = "Score: %d%s\nBiggest size: %d   Robots eaten: %d   Survived: %ds\nBest: %d\n\nPress ENTER or click to rebuild" % [
-		score, "   NEW BEST!" if new_best else "", best_mass, eaten, int(elapsed), highscore]
+	var mega := ("MEGABOT reached in %ds!\n" % int(megabot_time)) if megabot_time >= 0.0 else ""
+	ui_body.text = "Score: %d%s\n%sBiggest size: %d   Robots eaten: %d   Survived: %ds\nBest: %d\n\nPress ENTER or click to rebuild" % [
+		score, "   NEW BEST!" if new_best else "", mega, best_mass, eaten, int(elapsed), highscore]
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if state == State.CHOOSE:
+		if event is InputEventKey and event.pressed and not event.echo:
+			var n: int = event.keycode - KEY_1
+			if n >= 0 and n < card_choices.size():
+				_pick_mutation(n)
+		return
 	var go := false
 	if event is InputEventKey and event.pressed and not event.echo:
 		go = event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_R]
@@ -145,10 +168,17 @@ func _process(delta: float) -> void:
 		combo_t -= delta
 		if combo_t <= 0.0:
 			combo = 0
+		frenzy_t -= delta
+		if frenzy_t <= 0.0:
+			frenzy = 0
 		_collisions()
 		if state == State.PLAY:
 			_spawning()
 			best_mass = maxi(best_mass, player.mass())
+			_check_milestones()
+	elif state == State.CHOOSE:
+		if autopilot:
+			_pick_mutation(0)
 	elif state == State.DEAD:
 		dead_time += delta
 		if autopilot and dead_time > 1.0:
@@ -156,7 +186,7 @@ func _process(delta: float) -> void:
 			_reset_world()
 			_start()
 	if autopilot and Engine.get_process_frames() % 300 == 0:
-		print("frame %d state=%d size=%d eaten=%d enemies=%d scrap=%d bullets=%d" % [Engine.get_process_frames(), state, player.mass(), eaten, enemies.size(), scraps.size(), bullets.size()])
+		print("frame %d state=%d score=%d muts=%s size=%d eaten=%d enemies=%d scrap=%d bullets=%d" % [Engine.get_process_frames(), state, score, str(player.mut.keys()), player.mass(), eaten, enemies.size(), scraps.size(), bullets.size()])
 
 	# camera follows the player and zooms out as you grow
 	cam.position = cam.position.lerp(player.position, 1.0 - exp(-6.0 * delta))
@@ -196,7 +226,7 @@ func _collisions() -> void:
 				_eat_enemy(e)
 				enemies.remove_at(i)
 			elif player.invuln <= 0.0:
-				_hurt_player(e.mass(), (pp - e.position).normalized())
+				_hurt_player(e.mass(), (pp - e.position).normalized(), e)
 				if state != State.PLAY:
 					return
 
@@ -232,6 +262,7 @@ func _collect(s) -> void:
 	player.parts.append(s.kind)
 	combo += 1
 	combo_t = 1.2
+	score += 1 + frenzy
 	play_sfx("pickup", -4.0, 1.0 + minf(combo, 12) * 0.06)
 	float_text(s.position, DB.PERKS[s.kind], DB.COLORS[s.kind])
 	burst(s.position, DB.COLORS[s.kind], 8, 160.0)
@@ -240,12 +271,18 @@ func _collect(s) -> void:
 
 func _eat_enemy(e) -> void:
 	# You absorb 30% of its parts (plus one), so growth stays fun, not instant
-	var gained: int = int(ceil(e.parts.size() * 0.3)) + 1
+	var ratio := 0.6 if player.mut.has("APPETITE") else 0.3
+	var gained: int = int(ceil(e.parts.size() * ratio)) + 1
 	e.parts.shuffle()
 	for k in gained - 1:
 		player.parts.append(e.parts[k])
 	player.parts.append(randi() % DB.COUNT)
 	eaten += 1
+	frenzy += 1
+	frenzy_t = 3.0
+	score += 25 * frenzy
+	if frenzy >= 2:
+		float_text(e.position + Vector2(0, -40), "FRENZY x%d" % frenzy, Color("ffd54f"), 26 + mini(frenzy, 8) * 3)
 	player.flash = 0.6
 	shake = 9.0 + minf(gained, 15)
 	burst(e.position, ENEMY_CORE, 24, 380.0)
@@ -265,11 +302,20 @@ func _destroy_enemy(e) -> void:
 	e.queue_free()
 
 
-func _hurt_player(enemy_mass: int, push: Vector2) -> void:
+func _hurt_player(enemy_mass: int, push: Vector2, attacker = null) -> void:
 	if player.parts.is_empty():
 		_game_over()
 		return
+	# SPIKED HULL: the attacker loses parts too (and might become edible!)
+	if attacker and player.mut.has("SPIKES"):
+		for k in mini(3, attacker.parts.size()):
+			var ak: int = attacker.parts.pop_back()
+			_spawn_scrap(attacker.position, ak, Vector2.from_angle(randf() * TAU) * 300.0, 0.3)
+		attacker.flash = 1.0
+		attacker.vel = -push * 700.0
 	var lose := mini(clampi(int(ceil(enemy_mass * 0.25)), 1, 8), player.parts.size())
+	if player.mut.has("ARMOR"):
+		lose = maxi(1, lose / 2)
 	for k in lose:
 		var idx: int = randi() % player.parts.size()
 		var kind: int = player.parts[idx]
@@ -374,6 +420,78 @@ func autopilot_dir() -> Vector2:
 	return dir
 
 
+# ------------------------------------------------------------------ mutations & dash
+func _check_milestones() -> void:
+	if megabot_time < 0.0 and player.mass() >= Mut.MEGABOT_SIZE:
+		megabot_time = elapsed
+		float_text(player.position + Vector2(0, -player.radius()), "MEGABOT ONLINE!", Color("00e5ff"), 56)
+		score += 2000
+		shake = 30.0
+		burst(player.position, Color("00e5ff"), 60, 700.0)
+		play_sfx("start", 4.0, 0.6)
+		hitstop(0.4)
+	if milestone_i < Mut.MILESTONES.size() and player.mass() >= Mut.MILESTONES[milestone_i]:
+		milestone_i += 1
+		card_choices = Mut.pick_three(player.mut)
+		if card_choices.is_empty():
+			return
+		state = State.CHOOSE
+		play_sfx("start", 0.0, 1.3)
+		ui_title.text = "METABOLISM SURGE!"
+		ui_body.text = "Pick a mutation (click or press 1 / 2 / 3)"
+		for c in card_box.get_children():
+			c.queue_free()
+		for i in card_choices.size():
+			var m: Dictionary = card_choices[i]
+			var b := Button.new()
+			b.text = "[%d]\n%s\n\n%s" % [i + 1, m.name, m.desc]
+			b.custom_minimum_size = Vector2(250, 170)
+			b.add_theme_font_size_override("font_size", 22)
+			var sb := StyleBoxFlat.new()
+			sb.bg_color = Color("1e2230")
+			sb.border_color = Color(m.color)
+			sb.set_border_width_all(4)
+			sb.set_corner_radius_all(14)
+			var sb_hover := sb.duplicate()
+			sb_hover.bg_color = Color(Color(m.color), 0.35)
+			b.add_theme_stylebox_override("normal", sb)
+			b.add_theme_stylebox_override("hover", sb_hover)
+			b.add_theme_stylebox_override("pressed", sb_hover)
+			b.add_theme_stylebox_override("focus", sb_hover)
+			b.add_theme_color_override("font_color", Color(m.color))
+			b.add_theme_color_override("font_hover_color", Color.WHITE)
+			b.pressed.connect(_pick_mutation.bind(i))
+			card_box.add_child(b)
+		card_box.visible = true
+
+
+func _pick_mutation(i: int) -> void:
+	if state != State.CHOOSE:
+		return
+	var m: Dictionary = card_choices[i]
+	player.mut[m.id] = true
+	card_box.visible = false
+	ui_title.text = ""
+	ui_body.text = ""
+	state = State.PLAY
+	player.invuln = 1.0
+	play_sfx("eat", 0.0, 1.5)
+	float_text(player.position + Vector2(0, -player.radius()), m.name + "!", Color(m.color), 40)
+	burst(player.position, Color(m.color), 40, 500.0)
+	shake = 12.0
+
+
+func on_dash(pos: Vector2, _dir: Vector2) -> void:
+	play_sfx("shoot", -2.0, 0.5)
+	shake = maxf(shake, 4.0)
+	burst(pos, Color("00e5ff"), 10, 200.0)
+
+
+func dash_trail(pos: Vector2) -> void:
+	if Engine.get_process_frames() % 2 == 0:
+		burst(pos, Color(0, 0.9, 1, 0.6), 3, 60.0)
+
+
 # ------------------------------------------------------------------ juice
 func burst(pos: Vector2, color: Color, amount: int = 16, spd: float = 250.0) -> void:
 	var p := CPUParticles2D.new()
@@ -470,17 +588,28 @@ func _build_ui() -> void:
 	ui_body = _make_label(24)
 	ui_body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(ui_body)
+	card_box = HBoxContainer.new()
+	card_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	card_box.add_theme_constant_override("separation", 24)
+	card_box.visible = false
+	box.add_child(card_box)
 
 
 func _update_ui() -> void:
-	if state != State.PLAY:
+	if state != State.PLAY and state != State.CHOOSE:
 		ui_stats.text = "BEST %d" % highscore
 		return
 	var c := []
 	for k in DB.COUNT:
 		c.append("%s x%d" % [DB.NAMES[k], player.count(k)])
-	ui_stats.text = "SIZE %d   POWER %d   EATEN %d   TIME %ds\n%s" % [
-		player.mass(), player.power(), eaten, int(elapsed), "   ".join(c)]
+	var dash := "DASH READY" if player.dash_cd <= 0.0 else "DASH %.1f" % player.dash_cd
+	var muts := []
+	for id in player.mut:
+		muts.append(id)
+	var goal := "MEGABOT!" if megabot_time >= 0.0 else "%d / %d to MEGABOT" % [player.mass(), Mut.MEGABOT_SIZE]
+	ui_stats.text = "SCORE %d   SIZE %d   POWER %d   EATEN %d   TIME %ds   %s\n%s\n%s   %s" % [
+		score, player.mass(), player.power(), eaten, int(elapsed), goal, "   ".join(c), dash,
+		("MUTATIONS: " + ", ".join(muts)) if muts.size() > 0 else ""]
 
 
 func _draw() -> void:
