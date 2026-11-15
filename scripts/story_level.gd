@@ -154,9 +154,12 @@ func _make_sign(pos: Vector2, text: String) -> void:
 	l.add_theme_color_override("font_outline_color", Color.BLACK)
 	l.add_theme_constant_override("outline_size", 4)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.size = Vector2(220, 12)
-	l.position = pos - Vector2(110, 14)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART   # long signs wrap upward instead of running into the next sign
+	l.size = Vector2(150, 12)
 	add_child(l)
+	var lines: int = maxi(1, l.get_line_count())
+	l.size = Vector2(150, 12 * lines)
+	l.position = pos - Vector2(75, 14 + 12 * (lines - 1))
 
 
 func _make_exit(pos: Vector2) -> void:
