@@ -1,6 +1,7 @@
 Godot 4.3.stable.official.77dcf97d8; --headless --fixed-fps 60
 Branch: mazen/full-experience
 test_bounce.gd: PASS (exit 0) RESULT: PASS
+test_enemy_ai.gd: PASS (exit 0) RESULT: PASS (enemy AI)
 test_feel.gd: PASS (exit 0) RESULT: PASS (feel)
 test_fighter_animation.gd: PASS (exit 0) RESULT: PASS (fighter animation)
 test_hazard_respawn.gd: PASS (exit 0) RESULT: PASS (hazard respawn)

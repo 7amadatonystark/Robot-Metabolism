@@ -1,6 +1,6 @@
 # Before It Drops — full current playtest
 
-This build combines main b2e9644 with walking-animation fix f736254 and compact-controls fix 3f3b890. Branch: mazen/full-experience. Main and the individual review branches remain unchanged.
+This build combines main b2e9644 with walking-animation fix f736254, compact-controls fix 3f3b890, and platform-aware enemy AI 4073293. Branch: mazen/full-experience. Main and the individual review branches remain unchanged.
 
 ## Play the whole game
 
@@ -26,6 +26,7 @@ Bounce on your old body for extra height, pogo enemies/spikes, strike thrown pri
 ## Included
 
 - Three fighters with perks, specials, and visible walking strides.
+- Platform-aware enemy patrols, safe hops/landings, spike/wall avoidance, safe Line Cutter charges, and line-of-sight scalper attacks.
 - Title, fighter select, story intro, all three current levels and their secrets/routes.
 - Line Cutter, Hamster Godfather, Vice Queen, and ending.
 - Whole-story local co-op, body bounce/pogo, tag reflection, SOUL, masks, coins, benches, and stats.
@@ -33,7 +34,7 @@ Bounce on your old body for extra height, pogo enemies/spikes, strike thrown pri
 
 ## Verification
 
-Godot 4.3: all fourteen tests print RESULT: PASS and exit 0 with --headless --fixed-fps 60. Editor reimport and main-scene startup pass. Protected gameplay scripts and supplied assets are unchanged. Raw results: validation/full-experience.txt.
+Godot 4.3: all fifteen tests print RESULT: PASS and exit 0 with --headless --fixed-fps 60. Editor reimport and main-scene startup pass. The enemy AI was additionally checked with all nine level/fighter story routes and three Level 2 secret routes. The user explicitly approved edits to protected guard.gd and rival.gd for the AI fix; other protected scripts and supplied assets are unchanged. Raw results: validation/full-experience.txt and validation/enemy-platform-ai.txt.
 
 The new local copy initially had an incomplete Godot import cache. Reused the verified cache from the animation build (identical asset tree), then reran editor import and the complete suite successfully. The cache is ignored and not committed. Existing upstream resource/ObjectDB shutdown warnings remain. Physical PS4 playtesting, full manual completion, and Web export are not claimed as validated.
 
