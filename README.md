@@ -1,6 +1,12 @@
-# ROBOT METABOLISM: Haven Hack Club game jam (Godot 4.3+)
+# BOUNCEBACK BOT: Haven Hack Club game jam (Godot 4.3+)
 
-Eat parts. Grow. Become the biggest bot.
+**Theme: Bounce Back.** Get scrapped. Bounce back bigger.
+
+## How the game shows the theme
+- **Bounce-back recovery:** a hit scatters your parts. Grab them all back within 3 s for a FULL BOUNCE BACK (bonus score + speed boost).
+- **Reboot:** get hit with zero parts and you become a bare core. Grab 3 parts in 5 s to come back to life.
+- **Bouncy arena:** you and enemies bounce off the walls.
+- **Mutations:** every milestone you come back stronger (pick 1 of 3 upgrades).
 
 ## Run it
 1. Open Godot 4.3 or newer, click **Import**, and select `project.godot` in this folder.
@@ -10,7 +16,8 @@ Eat parts. Grow. Become the biggest bot.
 - WASD, arrow keys, or hold the left mouse button to move.
 - Touch loose parts to bolt them onto your robot.
 - A **green ring** means you can eat that robot. A **red ring** means it will knock parts off you.
-- If you get hit with zero parts left, you're scrapped and it's game over.
+- SPACE or right-click to DASH (you can't be hurt while dashing).
+- If you get hit with zero parts you go into REBOOT. Get hit again while rebooting and you're scrapped.
 
 ## Parts
 | Part | Effect |

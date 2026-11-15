@@ -2,8 +2,8 @@
 extends Node2D
 
 # ===================== THEME KNOBS: change these to fit the jam theme =====================
-const GAME_TITLE := "ROBOT METABOLISM"
-const TAGLINE := "Eat parts. Grow. Become the biggest bot."
+const GAME_TITLE := "BOUNCEBACK BOT"
+const TAGLINE := "Get scrapped. Bounce back bigger."
 const BG_COLOR := Color("14161f")
 const GRID_COLOR := Color(1, 1, 1, 0.045)
 const PLAYER_CORE := Color("eceff1")
@@ -45,6 +45,16 @@ var milestone_i := 0
 var megabot_time := -1.0   # seconds it took to reach MEGABOT, -1 = not yet
 var card_box: HBoxContainer
 var card_choices: Array = []
+# ---- BOUNCE BACK (jam theme) ----
+var bounce_backs := 0
+var lost_pending := 0      # parts knocked off in the last hit
+var recovered := 0         # how many of them you grabbed back
+var recover_t := 0.0       # time left to grab them back
+var reboot_t := 0.0        # > 0 = you're a bare core, grab 3 parts or die
+var reboot_got := 0
+const RECOVER_TIME := 3.0
+const REBOOT_TIME := 5.0
+const REBOOT_NEED := 3
 var autopilot := false     # run with: godot -- --bot   (used for testing)
 
 var ui_stats: Label
@@ -96,6 +106,10 @@ func _reset_world() -> void:
 	frenzy = 0
 	milestone_i = 0
 	megabot_time = -1.0
+	bounce_backs = 0
+	lost_pending = 0
+	recover_t = 0.0
+	reboot_t = 0.0
 	player = PlayerScript.new()
 	player.game = self
 	player.core_color = PLAYER_CORE
@@ -119,7 +133,7 @@ func _start() -> void:
 func _show_title() -> void:
 	state = State.TITLE
 	ui_title.text = GAME_TITLE
-	ui_body.text = TAGLINE + "\n\nWASD / Arrows / hold Mouse to move\nTouch loose parts to bolt them on     SPACE / Right-click = DASH\nGREEN ring = eat it     RED ring = run!\n\nWHEEL +speed   CLAW +bite   MAGNET +pull   CANNON +gun\nGrow to pick MUTATIONS. Reach size %d to become MEGABOT!\n\nPress ENTER or click to start" % Mut.MEGABOT_SIZE
+	ui_body.text = TAGLINE + "\n\nWASD / Arrows / hold Mouse to move\nTouch loose parts to bolt them on     SPACE / Right-click = DASH\nGet hit? Your parts scatter. Grab them back fast = BOUNCE BACK!\nGREEN ring = eat it     RED ring = run!\n\nWHEEL +speed   CLAW +bite   MAGNET +pull   CANNON +gun\nGrow to pick MUTATIONS. Reach size %d to become MEGABOT!\n\nPress ENTER or click to start" % Mut.MEGABOT_SIZE
 
 
 func _game_over() -> void:
@@ -136,8 +150,8 @@ func _game_over() -> void:
 	play_sfx("explode", 3.0, 0.7)
 	ui_title.text = "SCRAPPED!"
 	var mega := ("MEGABOT reached in %ds!\n" % int(megabot_time)) if megabot_time >= 0.0 else ""
-	ui_body.text = "Score: %d%s\n%sBiggest size: %d   Robots eaten: %d   Survived: %ds\nBest: %d\n\nPress ENTER or click to rebuild" % [
-		score, "   NEW BEST!" if new_best else "", mega, best_mass, eaten, int(elapsed), highscore]
+	ui_body.text = "Score: %d%s\n%sBiggest size: %d   Robots eaten: %d   Bounce-backs: %d   Survived: %ds\nBest: %d\n\nPress ENTER or click to bounce back" % [
+		score, "   NEW BEST!" if new_best else "", mega, best_mass, eaten, bounce_backs, int(elapsed), highscore]
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -171,7 +185,14 @@ func _process(delta: float) -> void:
 		frenzy_t -= delta
 		if frenzy_t <= 0.0:
 			frenzy = 0
-		_collisions()
+		recover_t = maxf(recover_t - delta, 0.0)
+		if reboot_t > 0.0:
+			reboot_t -= delta
+			if reboot_t <= 0.0:
+				reboot_t = 0.0
+				_game_over()
+		if state == State.PLAY:
+			_collisions()
 		if state == State.PLAY:
 			_spawning()
 			best_mass = maxi(best_mass, player.mass())
@@ -186,7 +207,7 @@ func _process(delta: float) -> void:
 			_reset_world()
 			_start()
 	if autopilot and Engine.get_process_frames() % 300 == 0:
-		print("frame %d state=%d score=%d muts=%s size=%d eaten=%d enemies=%d scrap=%d bullets=%d" % [Engine.get_process_frames(), state, score, str(player.mut.keys()), player.mass(), eaten, enemies.size(), scraps.size(), bullets.size()])
+		print("bb=%d reboot=%.1f frame %d state=%d score=%d muts=%s size=%d eaten=%d enemies=%d scrap=%d bullets=%d" % [bounce_backs, reboot_t, Engine.get_process_frames(), state, score, str(player.mut.keys()), player.mass(), eaten, enemies.size(), scraps.size(), bullets.size()])
 
 	# camera follows the player and zooms out as you grow
 	cam.position = cam.position.lerp(player.position, 1.0 - exp(-6.0 * delta))
@@ -263,6 +284,33 @@ func _collect(s) -> void:
 	combo += 1
 	combo_t = 1.2
 	score += 1 + frenzy
+	# REBOOT: bare core grabbing parts to come back to life
+	if reboot_t > 0.0:
+		reboot_got += 1
+		if reboot_got >= REBOOT_NEED:
+			reboot_t = 0.0
+			bounce_backs += 1
+			score += 300
+			player.invuln = 2.0
+			player.boost_t = 3.0
+			float_text(player.position + Vector2(0, -60), "REBOOTED! BOUNCE BACK!", Color("00e5ff"), 44)
+			burst(player.position, Color("00e5ff"), 50, 600.0)
+			play_sfx("start", 2.0, 1.2)
+			shake = 18.0
+			hitstop(0.12)
+	# Grabbed back a part that was knocked off you
+	elif s.lost and recover_t > 0.0 and lost_pending > 0:
+		recovered += 1
+		if recovered >= lost_pending:
+			bounce_backs += 1
+			score += 100 * lost_pending
+			player.boost_t = 2.5
+			float_text(player.position + Vector2(0, -50), "FULL BOUNCE BACK! +%d" % (100 * lost_pending), Color("ffd54f"), 38)
+			burst(player.position, Color("ffd54f"), 40, 500.0)
+			play_sfx("boing", 2.0, 1.3)
+			shake = 10.0
+			lost_pending = 0
+			recover_t = 0.0
 	play_sfx("pickup", -4.0, 1.0 + minf(combo, 12) * 0.06)
 	float_text(s.position, DB.PERKS[s.kind], DB.COLORS[s.kind])
 	burst(s.position, DB.COLORS[s.kind], 8, 160.0)
@@ -304,7 +352,19 @@ func _destroy_enemy(e) -> void:
 
 func _hurt_player(enemy_mass: int, push: Vector2, attacker = null) -> void:
 	if player.parts.is_empty():
-		_game_over()
+		if reboot_t > 0.0:
+			_game_over()       # hit again while rebooting = scrapped
+			return
+		# Last chance: bare core, grab 3 parts in 5 s to bounce back
+		reboot_t = REBOOT_TIME
+		reboot_got = 0
+		lost_pending = 0
+		player.invuln = 1.2
+		player.vel = push * 700.0
+		shake = 20.0
+		play_sfx("hurt", 2.0, 0.6)
+		float_text(player.position + Vector2(0, -50), "CORE EXPOSED!", Color("ff5252"), 40)
+		hitstop(0.15)
 		return
 	# SPIKED HULL: the attacker loses parts too (and might become edible!)
 	if attacker and player.mut.has("SPIKES"):
@@ -320,7 +380,11 @@ func _hurt_player(enemy_mass: int, push: Vector2, attacker = null) -> void:
 		var idx: int = randi() % player.parts.size()
 		var kind: int = player.parts[idx]
 		player.parts.remove_at(idx)
-		_spawn_scrap(player.position, kind, Vector2.from_angle(randf() * TAU) * randf_range(250.0, 450.0), 0.9)
+		_spawn_scrap(player.position, kind, Vector2.from_angle(randf() * TAU) * randf_range(250.0, 450.0), 0.6)
+		scraps[-1].lost = true
+	lost_pending = lose
+	recovered = 0
+	recover_t = RECOVER_TIME
 	player.invuln = 1.0
 	player.flash = 1.0
 	player.vel = push * 650.0
@@ -402,7 +466,7 @@ func autopilot_dir() -> Vector2:
 	var dir := Vector2.ZERO
 	for e in enemies:
 		var d: float = pp.distance_to(e.position)
-		if d < 300.0 and player.power() <= e.mass():
+		if d < 300.0 and player.power() <= e.mass() and not ("--reckless" in OS.get_cmdline_user_args()):
 			dir += (pp - e.position).normalized() * 3.0
 	var goal = null
 	var gd := 1e9
@@ -487,6 +551,13 @@ func on_dash(pos: Vector2, _dir: Vector2) -> void:
 	burst(pos, Color("00e5ff"), 10, 200.0)
 
 
+func on_wall_bounce(pos: Vector2, spd: float) -> void:
+	if spd > 150.0:
+		play_sfx("boing", -4.0, clampf(spd / 500.0, 0.7, 1.5))
+		burst(pos, Color("00e5ff"), 8, 200.0)
+		shake = maxf(shake, minf(spd / 100.0, 8.0))
+
+
 func dash_trail(pos: Vector2) -> void:
 	if Engine.get_process_frames() % 2 == 0:
 		burst(pos, Color(0, 0.9, 1, 0.6), 3, 60.0)
@@ -545,7 +616,7 @@ func play_sfx(sound_name: String, vol_db: float = 0.0, pitch: float = 1.0) -> vo
 
 # ------------------------------------------------------------------ setup: audio, UI, save
 func _load_audio() -> void:
-	for n in ["eat", "pickup", "hurt", "shoot", "explode", "start"]:
+	for n in ["eat", "pickup", "hurt", "shoot", "explode", "start", "boing"]:
 		sfx[n] = load("res://sfx/%s.wav" % n)
 	for i in 10:
 		var p := AudioStreamPlayer.new()
@@ -607,8 +678,16 @@ func _update_ui() -> void:
 	for id in player.mut:
 		muts.append(id)
 	var goal := "MEGABOT!" if megabot_time >= 0.0 else "%d / %d to MEGABOT" % [player.mass(), Mut.MEGABOT_SIZE]
-	ui_stats.text = "SCORE %d   SIZE %d   POWER %d   EATEN %d   TIME %ds   %s\n%s\n%s   %s" % [
-		score, player.mass(), player.power(), eaten, int(elapsed), goal, "   ".join(c), dash,
+	if state == State.PLAY:
+		if reboot_t > 0.0:
+			ui_title.text = "REBOOTING %.1f" % reboot_t
+			ui_body.text = "Grab %d more parts to BOUNCE BACK!" % (REBOOT_NEED - reboot_got)
+		elif ui_title.text.begins_with("REBOOTING"):
+			ui_title.text = ""
+			ui_body.text = ""
+	var recover := ("   RECOVER YOUR PARTS! %d/%d (%.1fs)" % [recovered, lost_pending, recover_t]) if (recover_t > 0.0 and lost_pending > 0) else ""
+	ui_stats.text = "SCORE %d   SIZE %d   POWER %d   EATEN %d   BOUNCE-BACKS %d   %s\n%s\n%s%s   %s" % [
+		score, player.mass(), player.power(), eaten, bounce_backs, goal, "   ".join(c), dash, recover,
 		("MUTATIONS: " + ", ".join(muts)) if muts.size() > 0 else ""]
 
 

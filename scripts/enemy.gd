@@ -66,7 +66,15 @@ func _process(delta: float) -> void:
 		desired = wander * 0.5
 	vel = vel.lerp(desired * speed(), 1.0 - exp(-3.0 * delta))
 	position += vel * delta
-	position = position.clamp(Vector2.ONE * -game.ARENA_HALF, Vector2.ONE * game.ARENA_HALF)
+	var a: float = game.ARENA_HALF
+	if absf(position.x) > a:
+		position.x = clampf(position.x, -a, a)
+		vel.x = -vel.x
+		wander.x = -wander.x
+	if absf(position.y) > a:
+		position.y = clampf(position.y, -a, a)
+		vel.y = -vel.y
+		wander.y = -wander.y
 	if vel.length() > 5.0:
 		face = vel.normalized()
 

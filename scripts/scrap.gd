@@ -9,6 +9,7 @@ var kind := 0
 var vel := Vector2.ZERO
 var t := 0.0
 var pickup_delay := 0.0   # so parts knocked off you don't instantly come back
+var lost := false         # true = this part was knocked off YOU (grab it back to BOUNCE BACK)
 
 
 func _process(delta: float) -> void:
@@ -27,4 +28,6 @@ func _draw() -> void:
 	var col: Color = DB.COLORS[kind]
 	var bob := 1.0 + 0.12 * sin(t * 5.0)
 	draw_circle(Vector2.ZERO, 15.0 * bob, Color(col, 0.15))
+	if lost and game.recover_t > 0.0:
+		draw_arc(Vector2.ZERO, 18.0 * bob, 0.0, TAU, 20, Color("ffd54f"), 2.0)
 	Draw.draw_part(self, kind, Vector2.ZERO, 8.0 * bob, t * 1.5, t)

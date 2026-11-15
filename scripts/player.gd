@@ -17,6 +17,7 @@ var fire_cd := 0.0
 var dash_t := 0.0              # > 0 while dashing
 var dash_cd := 0.0             # cooldown until next dash
 var printer_t := 4.0
+var boost_t := 0.0             # speed boost after a FULL BOUNCE BACK
 var t := 0.0
 
 
@@ -37,7 +38,8 @@ func power() -> int:
 	return p
 
 func speed() -> float:
-	return (240.0 + 220.0 * (1.0 - exp(-count(DB.WHEEL) / 6.0))) / (1.0 + mass() * 0.004)
+	var s := (240.0 + 220.0 * (1.0 - exp(-count(DB.WHEEL) / 6.0))) / (1.0 + mass() * 0.004)
+	return s * (1.4 if boost_t > 0.0 else 1.0)
 
 func magnet_range() -> float:
 	var r := 40.0 + 180.0 * (1.0 - exp(-count(DB.MAGNET) / 5.0))   # diminishing returns
@@ -56,6 +58,7 @@ func _process(delta: float) -> void:
 	flash = maxf(flash - delta * 4.0, 0.0)
 	dash_t = maxf(dash_t - delta, 0.0)
 	dash_cd = maxf(dash_cd - delta, 0.0)
+	boost_t = maxf(boost_t - delta, 0.0)
 	modulate.a = 0.4 if (invuln > 0.0 and not is_dashing() and int(t * 20.0) % 2 == 0) else 1.0
 	queue_redraw()
 	if not game.is_playing():
@@ -90,7 +93,16 @@ func _process(delta: float) -> void:
 	else:
 		vel = vel.lerp(dir * speed(), 1.0 - exp(-10.0 * delta))
 	position += vel * delta
-	position = position.clamp(Vector2.ONE * -game.ARENA_HALF, Vector2.ONE * game.ARENA_HALF)
+	# BOUNCY WALLS: hit the arena edge and you bounce back
+	var a: float = game.ARENA_HALF
+	if absf(position.x) > a:
+		position.x = clampf(position.x, -a, a)
+		vel.x = -vel.x * 0.9
+		game.on_wall_bounce(position, vel.length())
+	if absf(position.y) > a:
+		position.y = clampf(position.y, -a, a)
+		vel.y = -vel.y * 0.9
+		game.on_wall_bounce(position, vel.length())
 	if dir != Vector2.ZERO:
 		face = face.lerp(dir, 1.0 - exp(-12.0 * delta)).normalized()
 
@@ -122,4 +134,9 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, radius() + magnet_range(), 0.0, TAU, 48, Color(DB.COLORS[DB.MAGNET], 0.15), 2.0)
 	if is_dashing():
 		draw_circle(Vector2.ZERO, radius() * 1.15, Color(0, 0.9, 1, 0.25))
+	if boost_t > 0.0:
+		draw_arc(Vector2.ZERO, radius() * 1.25, 0.0, TAU, 32, Color("ffd54f"), 3.0)
+	if game and game.reboot_t > 0.0:
+		var pulse := 0.5 + 0.5 * sin(t * 18.0)
+		draw_arc(Vector2.ZERO, radius() * 1.6, 0.0, TAU, 32, Color(1, 0.3, 0.3, pulse), 4.0)
 	Draw.draw_robot(self, parts, radius(), core_color, t, face, Color("00e5ff"), flash)
