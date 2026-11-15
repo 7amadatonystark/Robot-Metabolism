@@ -28,3 +28,19 @@ These need the gameplay owner's review, not changes to protected files here.
 
 Manual: F5 → Play → choose fighter → fresh keys/CROSS reveal then advance each line;
 ignore held keys; final press starts The Docks. Physical controller and 4.3 remain unverified.
+
+## Task 2 — pause menu
+New ALWAYS-processing PauseMenu autoload. Escape/OPTIONS only opens in game.tscn,
+story_level.tscn, boss_arena.tscn. Standard focused buttons support keyboard, mouse,
+and Godot ui_* controller actions; CIRCLE/Escape/OPTIONS resumes. Restart and fighter
+change unpause first, and scene identity tracking clears stale pause state.
+Test first printed FAIL (autoload missing), then PASS after implementation. Synthetic
+Input.parse_input_event needs flush_buffered_events in this headless environment;
+adding the flush made the test exercise the events immediately instead of next frame.
+Human: Escape/OPTIONS in a level or raid, navigate with arrows/d-pad/stick, CROSS/Enter
+Resume/Restart/Change Fighter; check game resumes and select/lobby never pauses.
+
+Publication blocker: automatic approval review rejected git push to origin because it
+considered export of potentially private code to this GitHub remote not explicitly
+authorized. No retry or alternative upload will be attempted without explicit approval.
+Local commits, per-task PR drafts and final patch bundle will remain available for review.
