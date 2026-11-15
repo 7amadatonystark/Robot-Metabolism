@@ -153,7 +153,7 @@ func _fight() -> void:
 	var limit: int = level_frames.get(lvl, 500)
 	if phase == "level" and t > limit:
 		_next_scene()
-	if phase == "boss" and target.get("dead") == true:
+	if phase == "boss" and target and is_instance_valid(target) and target.get("dead") == true:
 		pass
 
 
