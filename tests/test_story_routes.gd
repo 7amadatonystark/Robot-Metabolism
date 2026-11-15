@@ -10,6 +10,15 @@ var level := 1
 var fighter := "spark"
 var frame := 0
 var seen_deaths := 0
+var physics_frames := 0
+
+func _physics_process(_delta):
+	physics_frames += 1
+	if physics_frames >= 6000:
+		print("RESULT: FAIL (physics watchdog)")
+		quit(1)
+	return false
+
 func _initialize():
 	var args = OS.get_cmdline_user_args()
 	if args.size() > 0: level = int(args[0])
@@ -116,19 +125,41 @@ func fight_gate(limit := 1800):
 		if pl.is_dead:
 			await tick()
 			continue
+		if pl.position.y > 80:
+			# A real death returns us to the bench; climb back using the
+			# existing spike body instead of stalling below the fight.
+			var pads = gm.bodies.filter(func(p): return absf(p.position.y - 96) < 5 and p.position.x > 220 and p.position.x < 270)
+			if pads.is_empty() or not await bounce_to(330, 32, 240, pads[0]):
+				print("GATE FAIL: cannot return from bench")
+				return false
+			continue
 		var dx = e.position.x-pl.position.x
+		# Brute knockback can push the non-physics rival off the roof.
+		# Recover with a real jump/dash and pogo from its left, pushing it
+		# back toward the arena. No enemy position is changed by the test.
+		if fighter == "zoom" and e.position.x < 288:
+			steer(e.position.x - 12)
+			Input.action_press("move_down")
+			Input.action_press("jump")
+			if not pl.is_on_floor() and absf(dx) > 55 and pl.can_air_dash:
+				Input.action_press("dash")
+			else:
+				Input.action_release("dash")
+			await tick()
+			continue
+		Input.action_release("dash")
 		if pl.is_on_floor():
 			Input.action_release("move_down")
 			Input.action_release("jump")
-			steer(clampf(e.position.x - 31 if dx>0 else e.position.x+31, 320, 630))
+			steer(clampf(e.position.x - 31 if dx>0 else e.position.x+31, 304, 646))
 			if absf(dx)<45:
 				if signf(dx) != pl.facing:
-					Input.action_press("move_right" if dx>0 else "move_left")
+					steer(pl.position.x + signf(dx) * 16)
 			if e.state=="tell" and e.state_t < 0.13:
 				Input.action_press("jump")
 		else:
 			Input.action_press("move_down")
-			steer(clampf(e.position.x, 320, 630))
+			steer(clampf(e.position.x, 304, 646))
 		if i%160==0 and fighter != "zoom":
 			Input.action_press("special")
 		else: Input.action_release("special")
@@ -137,6 +168,8 @@ func fight_gate(limit := 1800):
 		else: Input.action_release("power")
 		await tick()
 	print("GATE FAIL ",fighter," pos ",pl.position," deaths ",gm.deaths)
+	for enemy in get_nodes_in_group("gatekeeper"):
+		print("GATE DIAGNOSTIC: pos=", enemy.position, " hp=", enemy.get_meta("hp"), " state=", enemy.state, " facing=", pl.facing, " soul=", gm.soul)
 	return false
 func run():
 	await process_frame

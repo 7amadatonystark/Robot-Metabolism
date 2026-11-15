@@ -43,6 +43,10 @@ func run():
 	else:
 		ok = await sacrifice(104)
 	# Ledge top is at y48; ordinary terrain nearby tops out at y96.
+	if gm.bodies.is_empty():
+		print("RESULT: FAIL (no body for secret route)")
+		quit(1)
+		return
 	var secret_body = gm.bodies[-1]
 	var before: int = gm.score
 	ok = await bounce_to(secret_x + 8, 48) and ok

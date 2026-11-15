@@ -28,3 +28,17 @@ Tech stack: official Godot 4.3 and GDScript.
 - All three missing secret tests failed before maps were edited. Nine secret routes then passed with real inputs, rewards, and death-free returns.
 - All 23 invocations passed, with no GDScript errors.
 - Ruling: select the original spike body explicitly for the Docks return; the protected duplicate-death bug creates another body at the bench, which is not the intended takeoff. No production movement or health is overridden.
+
+## Continued work — Tasks 3–5
+- [x] Add two supported guards in Neon Streets and a flame guard on the Roof ledge.
+- [x] Add rivals across all three levels, keeping the first pit approachable; move the Line Cutter spawn farther from the rooftop entry.
+- [x] Verify normal routes, secret routes, reward, layout, and the three required tests on Godot 4.3.
+- [x] Update the handoff report with observed deaths and protected-code findings.
+- [ ] Review, commit, and refresh the cumulative handoff patch.
+
+- First encounter pass failed: intro rival knockback exposed the known pit recovery bug; move new Docks rivals beyond the bench. A crowded rooftop was reduced to streamer/preorder plus the Line Cutter.
+- Ruling: do not patch the protected rival movement. Document the off-deck knockback bug; the test controller may use actual dash/pogo inputs to recover, without moving enemies or granting health.
+- Added a physics watchdog and failure guards after a failed secret approach otherwise left a coroutine stopped and the game running indefinitely.
+- Corrected controller turning to use exclusive directional input, and kept ZOOM's off-deck pogo recovery separate from the other fighters.
+- Final serial suite: 23/23 PASS, zero GDScript errors. Concurrent baseline raid timing failure is explicitly documented, not hidden by the final pass.
+- Task 5 remains partial: report verified counts 2/2/4 per fighter; do not call them global minima without further route discovery.

@@ -1,5 +1,5 @@
 # ORIGIN: NEW, written by team (AI-assisted).
-# Catch enemy placements over pits: stationary-height rivals cannot fall onto ground.
+# Catch unsupported enemy placements in the actual generated collision map.
 # Run with Godot 4.3: godot --headless -s tests/test_story_layout.gd
 extends SceneTree
 
@@ -18,7 +18,7 @@ func _run():
 		await physics_frame
 		var space = current_scene.get_world_2d().direct_space_state
 		for child in current_scene.get_children():
-			if child.get_script() != preload("res://scripts/rival.gd"):
+			if child.get_script() not in [preload("res://scripts/rival.gd"), preload("res://scripts/guard.gd")]:
 				continue
 			var q = PhysicsRayQueryParameters2D.create(child.global_position + Vector2(0, -2), child.global_position + Vector2(0, 4), 1)
 			if space.intersect_ray(q).is_empty():
