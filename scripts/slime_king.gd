@@ -24,8 +24,8 @@ const Guard = preload("res://scripts/guard.gd")   # phase 2 spawns lollipop hams
 # If the picture exists, beating the Godfather starts a second, harder fight against it.
 const FINAL_BOSS_TEX := "res://assets/boss/final/body.png"
 const FINAL_BOSS_PORTRAIT := "res://assets/boss/final/portrait.png"   # optional (falls back to body.png)
-const FINAL_BOSS_NAME := "THE FINAL BOSS"
-const FINAL_BOSS_LINE := "\"YOU WANT THE LAST COPY? COME GET IT.\""
+const FINAL_BOSS_NAME := "THE VICE QUEEN"
+const FINAL_BOSS_LINE := "\"THE LAST COPY? IT WAS ALWAYS MINE.\""
 
 var is_final := false
 var boss_name := "THE HAMSTER GODFATHER"
@@ -358,7 +358,8 @@ func _build_bar() -> void:
 	if is_final:
 		var ptex: Texture2D = load(FINAL_BOSS_PORTRAIT) if ResourceLoader.exists(FINAL_BOSS_PORTRAIT) else body_tex
 		for m in portrait.MOODS:
-			portrait.art[m] = ptex
+			var mp := "res://assets/boss/final/portrait_%s.png" % m      # one face per mood if the team drew it
+			portrait.art[m] = load(mp) if ResourceLoader.exists(mp) else ptex
 	_update_bar()
 
 
