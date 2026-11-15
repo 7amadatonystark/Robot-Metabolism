@@ -20,6 +20,8 @@ config/icon="res://icon.svg"
 Music="*res://scenes/music.tscn"
 Stats="*res://scripts/stats.gd"
 Sfx="*res://scripts/sfx.gd"
+GameFeel="*res://scripts/game_feel.gd"
+SceneTransition="*res://scripts/scene_transition.gd"
 
 [display]
 
