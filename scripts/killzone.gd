@@ -1,3 +1,5 @@
+# ORIGIN: Brackeys tutorial (human-written): Area2D that kills on touch.
+# MODIFIED BY TEAM (AI-assisted): calls game_manager instead of reloading; leaves_body option.
 # KILLZONE: touch it and you die.
 # leaves_body = true  -> your body stays here as a bounce pad (spikes, slimes...)
 # leaves_body = false -> no body (use this for bottomless pits)

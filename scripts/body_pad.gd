@@ -1,3 +1,4 @@
+# ORIGIN: NEW, written by team (AI-assisted). Not from the tutorial.
 # BODY PAD: what's left when you die. It's solid, and it BOUNCES you up.
 # Created by game_manager.gd. You don't place these by hand.
 extends StaticBody2D

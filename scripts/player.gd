@@ -1,3 +1,5 @@
+# ORIGIN: Brackeys tutorial (human-written, public domain). Movement, gravity, jump, animations = Brackeys.
+# MODIFIED BY TEAM (AI-assisted): bounce on bodies, die(), respawn(), sounds. Marked below.
 extends CharacterBody2D
 
 

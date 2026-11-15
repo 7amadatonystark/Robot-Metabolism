@@ -1,3 +1,4 @@
+# ORIGIN: NEW, written by team (AI-assisted). Not from the tutorial.
 # CHECKPOINT: walk through it and you respawn here from now on.
 # Use: add an Area2D with a CollisionShape2D to the level, attach this script.
 extends Area2D

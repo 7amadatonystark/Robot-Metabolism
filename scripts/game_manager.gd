@@ -1,3 +1,5 @@
+# ORIGIN: Brackeys tutorial (human-written): score + add_point().
+# MODIFIED BY TEAM (AI-assisted): deaths, respawn, leaving bodies, death-counter HUD.
 # GAME MANAGER: coins, deaths, respawning, and leaving bodies behind.
 # THE TWIST: every time you die, your body stays as a BOUNCE PAD. Use your failures to bounce back higher.
 extends Node

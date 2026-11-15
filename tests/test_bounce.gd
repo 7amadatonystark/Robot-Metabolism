@@ -1,3 +1,4 @@
+# ORIGIN: NEW, test script written by team (AI-assisted).
 # Headless test: die -> body appears -> respawn -> fall onto body -> bounce.
 # Run: godot --headless -s tests/test_bounce.gd
 extends SceneTree

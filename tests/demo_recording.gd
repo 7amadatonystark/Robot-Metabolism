@@ -1,3 +1,4 @@
+# ORIGIN: NEW, demo-recording script written by team (AI-assisted).
 # Records the gameplay demo: DX=40 godot --path . --write-movie demo.avi -s tests/demo_recording.gd
 # Scripted demo: walk into slime, die, respawn, jump on own body, BOUNCE.
 extends SceneTree
