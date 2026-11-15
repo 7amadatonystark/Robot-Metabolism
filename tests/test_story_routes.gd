@@ -76,6 +76,14 @@ func jump(x: float, y: float, limit := 180, dash := false):
 	print("JUMP FAIL ", Vector2(x,y), " at ",pl.position," vy ",pl.velocity.y," deaths ",gm.deaths)
 	Input.action_release("jump")
 	return false
+func pogo_jump(x: float, y: float, dash := false):
+	# Column guards now survive their patrol. Use real jump/dash and down-strike
+	# inputs instead of relying on them walking into gaps before we arrive.
+	Input.action_press("move_down")
+	var reached: bool = await jump(x, y, 180, dash)
+	Input.action_release("move_down")
+	return reached
+
 func bounce_to(x: float, y: float, limit := 240, pad = null):
 	if gm.bodies.is_empty():
 		print("BOUNCE FAIL: no body")
@@ -188,10 +196,8 @@ func run():
 		ok = await bounce_to(770,96) and ok
 	elif level == 2:
 		ok = await walk(144)
-		ok = await jump(200,176) and ok
-		ok = await jump(248,176) and ok
-		ok = await jump(296,176) and ok
-		ok = await jump(370,176) and ok
+		ok = await pogo_jump(248,176,true) and ok
+		ok = await pogo_jump(370,176,true) and ok
 		ok = await walk(510) and ok
 		ok = await jump(640,176,180,true) and ok
 		ok = await walk(696) and ok
