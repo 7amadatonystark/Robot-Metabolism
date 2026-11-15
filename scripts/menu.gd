@@ -13,6 +13,9 @@ func _ready() -> void:
 	play_button.grab_focus()
 	resized.connect(_fit_title)
 	_fit_title()
+	var content: Control = $SafeArea/Center/Content
+	content.modulate.a = 0.0
+	create_tween().tween_property(content, "modulate:a", 1.0, 0.6)
 	if not Music.playing:
 		Music.play()
 	if OS.has_feature("web"):
