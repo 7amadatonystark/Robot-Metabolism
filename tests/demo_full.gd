@@ -110,6 +110,12 @@ func _fight() -> void:
 			ps[0].velocity = Vector2.ZERO
 		return
 	# pick the closest enemy still standing
+	# bosses only take hits from above: if the fight stalls, P2 lands a pogo on the head
+	if beat and target and is_instance_valid(target) and target.get("MAX_HP") != null and target.get("dead") != true and target_t > 80:
+		ps[1].global_position = target.global_position + Vector2(0, -130)
+		ps[1].velocity = Vector2.ZERO
+		target.on_nail_hit(ps[1])
+		target_t = 0
 	if beat and (target == null or not is_instance_valid(target) or target.has_meta("dying") or target.get("dead") == true or target_t > 170):
 		if target and is_instance_valid(target) and target_t > 170 and not target.has_meta("dying"):
 			if target.has_method("on_nail_hit") and target.get("MAX_HP") == null:
@@ -173,7 +179,10 @@ func _next_scene() -> void:
 
 func _walk_to_exit(ps: Array, lvl: int) -> void:
 	if phase == "boss":
-		_next_scene()
+		# wait between the Godfather and THE VICE QUEEN; only finish once the ending is playing
+		var ending_on: bool = current_scene.get_children().any(func(c): return c.get_script() and c.get_script().resource_path.ends_with("ending.gd"))
+		if ending_on:
+			_next_scene()
 		return
 	if beat:
 		walk_t += 1

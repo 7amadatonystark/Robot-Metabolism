@@ -34,9 +34,9 @@ func play(gm, player) -> void:
 	create_tween().tween_property(dim, "color:a", 0.6, 1.0)
 	var lines := []
 	if total > 0:
-		lines = ["THE GODFATHER FALLS.", "You got the LAST COPY of GTA VI.", "", "You fell %d times." % total, "They all got back up.", "", "Every fall got you higher.", "", "[R] play again"]
+		lines = [("THE VICE QUEEN FALLS." if ResourceLoader.exists("res://assets/boss/final/body.png") else "THE GODFATHER FALLS."), "You got the LAST COPY of GTA VI.", "", "You fell %d times." % total, "They all got back up.", "", "Every fall got you higher.", "", "[R] play again"]
 	else:
-		lines = ["THE GODFATHER FALLS.", "You got the LAST COPY of GTA VI.", "", "You never fell once.", "...show-off.", "", "[R] play again"]
+		lines = [("THE VICE QUEEN FALLS." if ResourceLoader.exists("res://assets/boss/final/body.png") else "THE GODFATHER FALLS."), "You got the LAST COPY of GTA VI.", "", "You never fell once.", "...show-off.", "", "[R] play again"]
 	var center := CenterContainer.new()
 	layer.add_child(center)
 	center.position = Vector2.ZERO
