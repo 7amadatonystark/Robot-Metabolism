@@ -9,7 +9,7 @@ and when you die, your body stays behind with all your geo, as a trampoline.
 You come back, take your geo back, and bounce off your own past mistakes to reach places you couldn't before."
 
 **Theme (10 s)**
-"The theme is Bounce Back, so it's in every move: pogo is a bounce, every death becomes a bounce pad,
+"The theme is Bounce Back, so it's in every move: pogo is a bounce, every death becomes a bounce pad, you can strike enemy price tags to bounce them back (that's how you break the Godfather's armor),
 and the death counter isn't shame. It's your progress."
 
 **Demo (20 s)**: play Level 1 live:

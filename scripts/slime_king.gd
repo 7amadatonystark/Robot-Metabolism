@@ -15,6 +15,7 @@ const GRAVITY := 900.0
 const SIZE := 3.5           # hitbox scale (kept from the slime version)
 const BODY_TEX = preload("res://assets/hamsters/godfather.png")
 const MINION_GUARD = "lolli"
+const EnemyShot = preload("res://scripts/enemy_shot.gd")   # he lobs $$$ price tags: bounce them back!
 const Guard = preload("res://scripts/guard.gd")   # phase 2 spawns lollipop hamsters
 
 var hp := MAX_HP
@@ -40,6 +41,7 @@ var player
 
 
 func _ready() -> void:
+	add_to_group("enemy_target")   # bounced-back price tags home in on these
 	floor_y = position.y
 	var tmp = SLIME_SCENE.instantiate()
 	tmp.free()
@@ -116,7 +118,7 @@ func _physics_process(delta: float) -> void:
 		"sleep":
 			# wakes up when you get close
 			if absf(to_player) < 170.0:
-				_toast("THE HAMSTER GODFATHER: \"THE LAST COPY IS MINE.\"", Color(0.85, 0.55, 1.0))
+				_toast("THE HAMSTER GODFATHER: \"THE LAST COPY IS MINE.\"  (Strike his $$$ tags back at him!)", Color(0.85, 0.55, 1.0))
 				portrait.react("smug", 1.5)
 				state = "idle"
 				state_t = 1.0
@@ -168,6 +170,19 @@ func _slam() -> void:
 		if not p.is_dead and p.is_on_floor() and absf(p.global_position.x - global_position.x) < 90.0:
 			gm.player_hit(global_position, false, p)
 	_dust()
+	# scalper prices: lob price tags at the players (strike them back to break his armor)
+	var tags := 1 if phase() == 1 else 2
+	for i in tags:
+		var target = _nearest_player()
+		if target == null:
+			break
+		var shot = EnemyShot.new()
+		shot.global_position = global_position + Vector2(0, -14.0 * SIZE)
+		var dx: float = target.global_position.x - shot.global_position.x + (i * 40.0 - 20.0) * float(tags - 1)
+		shot.gravity = 260.0
+		shot.life = 3.0
+		shot.velocity = Vector2(clampf(dx / 1.1, -260.0, 260.0), -150.0)
+		get_parent().add_child(shot)
 	# phase 2: spawn slimes
 	minions = minions.filter(func(m): return is_instance_valid(m))
 	if phase() == 2 and minions.size() < 3 and randf() < 0.6:

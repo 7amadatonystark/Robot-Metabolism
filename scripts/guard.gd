@@ -24,6 +24,7 @@ var t := 0.0
 
 
 func _ready() -> void:
+	add_to_group("enemy_target")   # bounced-back price tags home in on these
 	var s: Dictionary = STATS[kind]
 	set_meta("hp", s.hp)
 	var tex: Texture2D = load("res://assets/hamsters/%s.png" % kind)

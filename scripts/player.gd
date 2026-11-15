@@ -332,6 +332,12 @@ func _attack() -> void:
 			var enemy = col.get_parent()
 			if enemy != get_tree().current_scene and gm:
 				gm.hit_enemy(enemy, self)
+	# BOUNCE IT BACK: strike a price tag to send it flying into the enemy
+	var center := global_position + offset
+	for s in get_tree().get_nodes_in_group("enemy_shot"):
+		if not s.reflected and absf(s.global_position.x - center.x) < rect.size.x / 2 + 8 and absf(s.global_position.y - center.y) < rect.size.y / 2 + 8:
+			s.reflect(self)
+			hit_something = true
 	if hit_something:
 		if dir == Vector2.DOWN:
 			velocity.y = POGO_VELOCITY       # POGO!

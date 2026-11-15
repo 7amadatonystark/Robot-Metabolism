@@ -20,7 +20,7 @@ const LEVELS := [
 		"title": "LEVEL 1: THE DOCKS",
 		"line": "The store is across town. Rival buyers are already in line.",
 		"tiles": "grass", "sky": "day", "backdrop": "docks",
-		"signs": {"1": "J / SQUARE: strike", "2": "In the air hold S + J on a hamster: POGO",
+		"signs": {"1": "J / SQUARE: strike. Hit a $$$ tag to BOUNCE IT BACK", "2": "In the air hold S + J on a hamster: POGO",
 			"3": "Too high? Fall on the spikes...", "4": "...then jump on your body: BOUNCE BACK",
 			"5": "L / TRIANGLE: special    I / R2: power shot (needs SOUL)"},
 		"exit": "TO THE STREETS >",

@@ -36,6 +36,7 @@ var max_hp := 1
 
 
 func _ready() -> void:
+	add_to_group("enemy_target")   # bounced-back price tags home in on these
 	var s: Dictionary = STATS[kind]
 	max_hp = s.hp
 	set_meta("hp", s.hp)
