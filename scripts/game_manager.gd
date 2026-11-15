@@ -141,13 +141,17 @@ func hit_enemy(enemy: Node, by: Node2D) -> void:
 	if enemy.has_method("on_nail_hit"):     # bosses handle their own damage
 		enemy.on_nail_hit(by)
 		return
-	var hp: int = enemy.get_meta("hp", ENEMY_HP) - 1
+	var power: int = by.get("power") if by.get("power") != null else 1
+	var hp: int = enemy.get_meta("hp", ENEMY_HP) - power
 	enemy.set_meta("hp", hp)
 	var tw := enemy.create_tween()
 	enemy.modulate = Color(3, 3, 3)
 	tw.tween_property(enemy, "modulate", Color.WHITE, 0.15)
 	if enemy is Node2D:
-		enemy.position.x += 6.0 * signf(enemy.global_position.x - by.global_position.x)
+		enemy.position.x += 6.0 * power * power * signf(enemy.global_position.x - by.global_position.x)
+	if power > 1:
+		_shake(5.0)
+		_toast("SMASH!")
 	if hp <= 0:
 		enemy.set_meta("dying", true)
 		score += 2                                   # enemies drop geo

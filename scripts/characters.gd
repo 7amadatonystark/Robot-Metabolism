@@ -10,15 +10,15 @@ const LIST := [
 	{
 		"id": "spark", "name": "SPARK", "tagline": "The finger gun is loaded.",
 		"perk": "LONG REACH: nail hits 40% further",
-		"speed": 1.0, "masks": 5, "reach": 1.4,
+		"speed": 1.0, "masks": 5, "reach": 1.4, "power": 1,
 		"anims": {"idle": ["idle", 6], "run": ["idle", 12], "jump": ["block", 1], "attack": ["punch", 14],
 			"hurt": ["hurt", 1], "taunt": ["taunt", 6], "knockdown": ["hurt", 1]},
 		"knockdown_rotate": true,
 	},
 	{
-		"id": "zoom", "name": "ZOOM", "tagline": "Talks trash. Runs faster.",
-		"perk": "SPEED: +20% run speed",
-		"speed": 1.2, "masks": 5, "reach": 1.0,
+		"id": "zoom", "name": "ZOOM", "tagline": "Talks trash. Hits like a truck.",
+		"perk": "BRUTE FORCE: double damage, smashes enemies back, breaks boss armor",
+		"speed": 1.0, "masks": 5, "reach": 1.0, "power": 2,
 		"anims": {"idle": ["idle", 6], "run": ["run", 12], "jump": ["run", 1], "attack": ["punch", 16],
 			"hurt": ["block", 1], "taunt": ["taunt", 6], "knockdown": ["knockdown", 1]},
 		"knockdown_rotate": false,
@@ -26,7 +26,7 @@ const LIST := [
 	{
 		"id": "brains", "name": "BRAINS", "tagline": "Calculated every bounce.",
 		"perk": "TANK: 6 masks instead of 5",
-		"speed": 1.0, "masks": 6, "reach": 1.0,
+		"speed": 1.0, "masks": 6, "reach": 1.0, "power": 1,
 		"anims": {"idle": ["idle", 6], "run": ["run", 12], "jump": ["run", 1], "attack": ["punch", 16],
 			"hurt": ["block", 1], "taunt": ["taunt", 6], "knockdown": ["knockdown", 1]},
 		"knockdown_rotate": false,

@@ -170,7 +170,9 @@ func on_nail_hit(by: Node2D) -> void:
 	if dead:
 		return
 	var from_above: bool = by.global_position.y < global_position.y - 9.0 * SIZE
-	if not from_above:
+	var power: int = by.get("power") if by.get("power") != null else 1
+	var brute := power > 1 and not from_above     # ZOOM breaks his armor from the side
+	if not from_above and not brute:
 		# CLANK: armor is too thick from the side
 		sfx_clank.pitch_scale = 0.6
 		sfx_clank.play()
@@ -178,15 +180,22 @@ func on_nail_hit(by: Node2D) -> void:
 		portrait.react("smug", 0.8)
 		by.velocity.x = 220.0 * signf(by.global_position.x - global_position.x)
 		return
-	hp -= 1
+	var before := hp
+	hp -= power
 	_update_bar()
-	portrait.react("squashed", 0.5)
+	if brute:
+		_toast("ARMOR BROKEN!", Color(1, 0.6, 0.2))
+		portrait.react("angry", 0.5)
+		position.x = clampf(position.x + 24.0 * signf(global_position.x - by.global_position.x), left_x, right_x)
+		by.velocity.x = 160.0 * signf(by.global_position.x - global_position.x)
+	else:
+		portrait.react("squashed", 0.5)
 	sfx_hit.play()
 	sprite.modulate = Color(3, 3, 3)
 	create_tween().tween_property(sprite, "modulate", Color(1.0, 0.6, 0.7) if hp <= MAX_HP / 2 else Color.WHITE, 0.2)
 	if gm:
 		gm._shake(3.0)
-	if hp == MAX_HP / 2:
+	if before > MAX_HP / 2 and hp <= MAX_HP / 2:
 		_toast("THE KINGPIN IS FURIOUS", Color(1, 0.4, 0.4))
 		portrait.set_base("enraged")
 		portrait.react("enraged", 1.0)

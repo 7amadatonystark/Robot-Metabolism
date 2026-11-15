@@ -33,6 +33,7 @@ var slash_t := 0.0                 # slash effect timer
 var slash_dir := Vector2.RIGHT
 var speed_mult := 1.0              # character perks (see characters.gd)
 var reach := 1.0
+var power := 1                     # damage per hit (ZOOM = 2)
 var custom_char := false           # true = using a chosen fighter instead of the Brackeys knight
 var base_scale := Vector2.ONE
 var attack_anim_t := 0.0
@@ -82,6 +83,7 @@ func _apply_character() -> void:
 	custom_char = true
 	speed_mult = c.speed
 	reach = c.reach
+	power = c.get("power", 1)
 	animated_sprite.sprite_frames = Characters.build_frames(c)
 	animated_sprite.position = Vector2.ZERO
 	animated_sprite.scale = Vector2.ONE * Characters.SPRITE_SCALE
@@ -253,7 +255,7 @@ func _attack() -> void:
 			sfx_bounce.play()
 			_squash()
 		elif dir.x != 0:
-			velocity.x = -facing * 120.0     # nail recoil
+			velocity.x = -facing * (60.0 if power > 1 else 120.0)     # nail recoil (brutes barely flinch)
 
 
 # BOUNCE BACK: landed on top of one of your old bodies? Launch!

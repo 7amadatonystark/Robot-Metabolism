@@ -15,7 +15,7 @@ The game starts on **CHOOSE YOUR FIGHTER**: ←/→ to pick, ENTER to play, **B*
 | Fighter | Perk |
 |---|---|
 | SPARK | Long reach: nail hits 40% further |
-| ZOOM | +20% run speed |
+| ZOOM | BRUTE FORCE: double damage, smashes enemies back, can hit the boss from the side |
 | BRAINS | 6 masks instead of 5 |
 
 ### Controls (Hollow Knight style)

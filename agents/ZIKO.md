@@ -11,7 +11,7 @@ Make 3 short levels that teach and combine the two "bounce back" moves:
 A judge should understand "dying helps me bounce back" within 60 seconds of Level 1.
 
 ## Fighters
-Players pick SPARK, ZOOM or BRAINS first (`scenes/character_select.tscn`). ZOOM is 20% faster and SPARK reaches further, so make sure every level works with the **slowest** fighter (SPARK / BRAINS). When you test a level with F6, you play as the Brackeys knight (same speed as SPARK/BRAINS).
+Players pick SPARK, ZOOM or BRAINS first (`scenes/character_select.tscn`). All three run at the same speed. SPARK reaches further, ZOOM hits twice as hard, and BRAINS has 6 masks. Make sure every level works for all of them. When you test a level with F6, you play as the Brackeys knight (same speed).
 
 ## Numbers (tile = 16 px)
 - Normal jump ≈ 2 tiles up. Pogo ≈ 2 tiles up from the hit point (chainable).
