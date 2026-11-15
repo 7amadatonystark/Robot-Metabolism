@@ -47,3 +47,17 @@ Tech stack: official Godot 4.3 and GDScript.
 - Final: minor (deferred): the re-entry coin test runs after collision is disabled, so it does not directly cover the production collected guard for same-step callbacks. Guard remains correct; document this coverage limit.
 - Final: minor (deferred, carried): locked-gate handler is invoked directly, while unlocked exit is physically traversed. Human locked-door collision check remains.
 - Cumulative patch verified against original main, with all final files matching. Publication remains blocked by the previously observed GitHub 403; no permission change was observed and no further write attempt was made.
+
+## Task 5 — final minimum-death and fairness check
+- Latest main 108507c and published 7a9ee56 combined on ziko/final-playtest at 483eea9.
+- [x] Rerun current required tests and all story/secret routes on the combined build.
+- [x] Search and reproduce lower-death routes instead of treating body-route counts as minima.
+- [x] Save nine zero-death witnesses; monitor deaths until the actual next-scene transition.
+- [x] Report unfair behavior and exact regression failures.
+- [ ] Independent review and final incremental handoff.
+
+- Verified minimum: 0 for every fighter on every story level. Deaths cannot be negative and all nine witnesses physically reach the next scene with no deaths.
+- Ruling: no protected gameplay changes to manufacture a result; route witnesses use live enemies and actual inputs. Fixed-seed/fresh-start scope is explicit.
+- Updated the Roof subtitle so it no longer claims two falls are compulsory.
+- Existing suite remains 26/27 because the BRAINS body route exposes the protected off-roof Line Cutter issue. Together with 9/9 new witnesses, final total is 35/36; do not hide this failure or claim the game is release-ready.
+- Improved only test input handling: retry a jump consumed by stun, and keep a final pogo from being shortened on gate-clear.

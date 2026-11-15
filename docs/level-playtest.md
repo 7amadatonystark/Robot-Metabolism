@@ -1,6 +1,8 @@
 # Ziko — levels handoff
 
-Branch: `ziko/levels`. Base: main `727c1cc`. Engine: official Godot 4.3 stable.
+This is the historical level-development handoff. The current minimum-death and combined-build findings are in [final-fairness.md](final-fairness.md): verified minima are **0 / 0 / 0 for every fighter**. The 2/2/4 counts below are body-route observations, not current minima.
+
+Original branch: `ziko/levels`. Original base: main `727c1cc`. Engine: official Godot 4.3 stable.
 
 ## Current work
 
