@@ -20,6 +20,17 @@ const MINION_GUARD = "lolli"
 const EnemyShot = preload("res://scripts/enemy_shot.gd")   # he lobs $$$ price tags: bounce them back!
 const Guard = preload("res://scripts/guard.gd")   # phase 2 spawns lollipop hamsters
 
+# FINAL BOSS (optional): drop your own picture at FINAL_BOSS_TEX and set FINAL_BOSS_NAME.
+# If the picture exists, beating the Godfather starts a second, harder fight against it.
+const FINAL_BOSS_TEX := "res://assets/boss/final/body.png"
+const FINAL_BOSS_PORTRAIT := "res://assets/boss/final/portrait.png"   # optional (falls back to body.png)
+const FINAL_BOSS_NAME := "THE FINAL BOSS"
+const FINAL_BOSS_LINE := "\"YOU WANT THE LAST COPY? COME GET IT.\""
+
+var is_final := false
+var boss_name := "THE HAMSTER GODFATHER"
+var max_hp := MAX_HP
+var body_tex: Texture2D = BODY_TEX
 var hp := MAX_HP
 var vel := Vector2.ZERO
 var state := "sleep"
@@ -44,18 +55,23 @@ var player
 
 func _ready() -> void:
 	add_to_group("enemy_target")   # bounced-back price tags home in on these
+	if is_final:
+		boss_name = FINAL_BOSS_NAME
+		body_tex = load(FINAL_BOSS_TEX)
+		max_hp = 14
+		hp = max_hp
 	floor_y = position.y
 	var tmp = SLIME_SCENE.instantiate()
 	tmp.free()
 	sprite = AnimatedSprite2D.new()
 	var sf := SpriteFrames.new()
-	sf.add_frame("default", BODY_TEX)
+	sf.add_frame("default", body_tex)
 	sprite.sprite_frames = sf
 	sprite.scale = Vector2(SIZE, SIZE)
-	sprite.offset = Vector2(0, -BODY_TEX.get_height() / 2.0)   # squash from the feet
+	sprite.offset = Vector2(0, -body_tex.get_height() / 2.0)   # squash from the feet
 	sprite.play()
 	var holder := Node2D.new()           # shrinks the 256 px drawing to about 84 px tall
-	holder.scale = Vector2.ONE * (24.0 / BODY_TEX.get_height())
+	holder.scale = Vector2.ONE * (24.0 / body_tex.get_height())
 	holder.position = Vector2(0, 4)
 	add_child(holder)
 	holder.add_child(sprite)
@@ -107,7 +123,7 @@ func _sfx(path: String, db: float) -> AudioStreamPlayer:
 
 
 func phase() -> int:
-	return 2 if hp <= MAX_HP / 2 else 1
+	return 2 if hp <= max_hp / 2 else 1
 
 
 func _physics_process(delta: float) -> void:
@@ -121,7 +137,7 @@ func _physics_process(delta: float) -> void:
 		"sleep":
 			# wakes up when you get close
 			if absf(to_player) < 170.0:
-				_toast("THE HAMSTER GODFATHER: \"THE LAST COPY IS MINE.\"  (Strike his $$$ tags back at him!)", Color(0.85, 0.55, 1.0))
+				_toast((boss_name + ": " + FINAL_BOSS_LINE) if is_final else "THE HAMSTER GODFATHER: \"THE LAST COPY IS MINE.\"  (Strike his $$$ tags back at him!)", Color(0.85, 0.55, 1.0))
 				portrait.react("smug", 1.5)
 				state = "idle"
 				state_t = 1.0
@@ -237,11 +253,11 @@ func on_nail_hit(by: Node2D) -> void:
 		portrait.react("squashed", 0.5)
 	sfx_hit.play()
 	sprite.modulate = Color(3, 3, 3)
-	create_tween().tween_property(sprite, "modulate", Color(1.0, 0.6, 0.7) if hp <= MAX_HP / 2 else Color.WHITE, 0.2)
+	create_tween().tween_property(sprite, "modulate", Color(1.0, 0.6, 0.7) if hp <= max_hp / 2 else Color.WHITE, 0.2)
 	if gm:
 		gm._shake(3.0)
-	if before > MAX_HP / 2 and hp <= MAX_HP / 2:
-		_toast("THE GODFATHER IS FURIOUS", Color(1, 0.4, 0.4))
+	if before > max_hp / 2 and hp <= max_hp / 2:
+		_toast(boss_name + " IS FURIOUS", Color(1, 0.4, 0.4))
 		portrait.set_base("enraged")
 		portrait.react("enraged", 1.0)
 		sprite.modulate = Color(1.0, 0.4, 0.6)
@@ -251,7 +267,8 @@ func on_nail_hit(by: Node2D) -> void:
 
 func _die() -> void:
 	dead = true
-	Sfx.play("victory", 0.0, 0.0)
+	var chain_final: bool = not is_final and ResourceLoader.exists(FINAL_BOSS_TEX)
+	Sfx.play("mission_passed" if chain_final else "victory", 0.0, 0.0)
 	portrait.react("defeated", 0.0)
 	for m in minions:
 		if is_instance_valid(m):
@@ -270,6 +287,22 @@ func _die() -> void:
 	Engine.time_scale = 1.0
 	await get_tree().create_timer(1.2).timeout
 	bar.get_parent().visible = false
+	if chain_final:
+		_toast("BUT WAIT... " + FINAL_BOSS_NAME + " WANTS THE LAST COPY TOO", Color(1, 0.5, 0.8))
+		if gm:
+			for p in gm.players:            # everyone gets a fresh start for the last fight
+				p.pmasks = p.pmax
+			gm._update_hud()
+		await get_tree().create_timer(2.0).timeout
+		var fb = get_script().new()
+		fb.is_final = true
+		fb.position = Vector2((left_x + right_x) / 2.0, floor_y)
+		fb.left_x = left_x
+		fb.right_x = right_x
+		get_parent().add_child(fb)
+		fb.add_to_group("raid_focus")
+		queue_free()
+		return
 	var e = Ending.new()
 	get_parent().add_child(e)
 	e.play(gm, player)
@@ -301,7 +334,7 @@ func _build_bar() -> void:
 	layer.visible = false
 	add_child(layer)
 	var name_l := Label.new()
-	name_l.text = "THE HAMSTER GODFATHER"
+	name_l.text = boss_name
 	name_l.add_theme_font_override("font", FONT)
 	name_l.add_theme_font_size_override("font_size", 16)
 	name_l.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -322,12 +355,16 @@ func _build_bar() -> void:
 	portrait.position = Vector2(282, 524)
 	portrait.set_placeholder(sprite.sprite_frames.get_frame_texture(sprite.animation, 0))
 	layer.add_child(portrait)
+	if is_final:
+		var ptex: Texture2D = load(FINAL_BOSS_PORTRAIT) if ResourceLoader.exists(FINAL_BOSS_PORTRAIT) else body_tex
+		for m in portrait.MOODS:
+			portrait.art[m] = ptex
 	_update_bar()
 
 
 func _update_bar() -> void:
 	if bar:
-		bar.size.x = 396.0 * float(maxi(hp, 0)) / float(MAX_HP)
+		bar.size.x = 396.0 * float(maxi(hp, 0)) / float(max_hp)
 
 
 func _toast(text: String, col: Color) -> void:
