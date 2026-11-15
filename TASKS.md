@@ -22,8 +22,11 @@
 - [x] City backdrop, GTA-parody layer, game renamed BEFORE IT DROPS
 - [x] Tests: `tests/test_bounce.gd`, `tests/test_hk.gd`, `tests/test_raid.gd`
 - [x] Rival buyers (scalper, streamer, preorder guy) + Line Cutter mini-boss
-- [ ] Merge PRs, playtest with real PS4 pads
-- [ ] Web build + trailer → itch.io
+- [x] Merged Mazen (title, intro, pause, game feel, controls card) and Ziko (secrets, routes, coin fix)
+- [x] BOUNCE IT BACK parry, Kenney CC0 audio, outline + color grade, co-op for the whole story
+- [x] Store-front boss arena, THE VICE QUEEN final boss, 13 tests passing
+- [x] Final web build + trailer (`docs/trailer.mp4`)
+- [ ] Upload the final zip to itch.io, playtest with real PS4 pads
 - [ ] Fill in the "Source/artist: TODO" lines in `CREDITS.md`
 - [ ] Practice the pitch twice
 

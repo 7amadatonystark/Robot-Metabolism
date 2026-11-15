@@ -11,15 +11,21 @@ Assets: Brackeys Platformer Bundle (CC0): https://brackeysgames.itch.io/brackeys
 
 ## Run
 Open Godot 4.3+, click **Import**, select `project.godot`, then press **F5**.
-The game starts on **CHOOSE YOUR FIGHTER**: ←/→ to pick, ENTER to play, **B** to jump straight to the boss.
+**Play in the browser:** the itch.io page (web build). **Trailer:** `docs/trailer.mp4`.
 
-### BOSS RAID: co-op for up to 3 (one shared screen)
-On the select screen press **R** (or **OPTIONS** on a PS4 pad). In the lobby, each controller presses **CROSS** to join (keyboard: ENTER), uses **LEFT/RIGHT** to pick a fighter, and presses **OPTIONS** (or ENTER) to fight.
+Flow: **title screen** → **CHOOSE YOUR FIGHTER** (←/→ pick, ENTER play, **B** = straight to the boss, **R** = co-op) → **story intro** → Level 1 → 2 → 3 → **the Hamster Godfather** → **THE VICE QUEEN** → ending.
+**Esc / OPTIONS** pauses (resume · restart · quit to title).
+
+### CO-OP: the whole story for up to 3 (one shared screen)
+On the select screen press **R** (or **OPTIONS** on a PS4 pad). In the lobby, each controller presses **CROSS** to join (keyboard: ENTER), uses **LEFT/RIGHT** to pick a fighter, and presses **OPTIONS** (or ENTER) to start. You play Levels 1–3 and both boss fights together.
 PS4 controls: stick/d-pad move · CROSS jump · SQUARE attack (hold down in the air = pogo) · CIRCLE or R1 dash.
 The camera zooms out to keep everyone and the boss on screen. When a player dies, their body becomes a trampoline for the team, and they bounce back at the bench 1 second later.
 
 ### Story mode
-GTA VI drops today. Fight through the line of rival buyers (meme hamsters) across **The Docks → Neon Streets → The Roof** to the store, and beat **THE HAMSTER GODFATHER** (a scalper) for the **last copy**.
+GTA VI drops today. Fight through the line of rival buyers (meme hamsters) across **The Docks → Neon Streets → The Roof** to the game store. In front of the store, beat **THE HAMSTER GODFATHER** (a scalper; his backup walks out of the store door), then the final boss **THE VICE QUEEN** (the team's original pixel art) for the **last copy**.
+
+### BOUNCE IT BACK
+Strike a `$$$` price tag (scalpers and the Godfather throw them) and it flies back gold, homes in on the nearest enemy and hits twice as hard. It's the way to break the bosses' armor.
 Levels are text maps in `scripts/levels.gd`.
 
 ### Enemies
@@ -58,6 +64,8 @@ Levels are text maps in `scripts/levels.gd`.
 - **Benches** = checkpoint + full heal.
 - **Death spikes** (`instant_kill`): instant death, so your body lands exactly there. Used for "die on purpose" puzzles.
 - **Die → your body stays** with all your geo, as a **bounce pad**. Strike it to take your geo back; land on it to bounce high.
+- **Sound:** Kenney CC0 hits, smashes and sax jingles (`scripts/sfx.gd`, `Sfx.play("hit")`). One global `Music` player; the boss fight plays it faster.
+- **Look:** one dark-purple outline shader on every sprite + a Vice Slime sunset/vignette color grade (`scripts/look.gd`, `assets/shaders/`).
 
 ## Files
 | File | What it does |
@@ -71,7 +79,7 @@ Levels are text maps in `scripts/levels.gd`.
 | `scripts/slime_king.gd` | **Hamster Godfather** boss: hops, slams (jump the shockwave), spawns lollipop guards in phase 2. Pogo, ZOOM, or power shots hurt him; side nail hits CLANK |
 | `scenes/character_select.tscn` + `scripts/character_select.gd` | Home screen: CHOOSE YOUR FIGHTER (main scene) |
 | `scenes/story_level.tscn`, `scripts/story_level.gd`, `scripts/levels.gd` | Story levels built from text maps |
-| `scripts/city_backdrop.gd` | Parallax Vice Slime city behind every level (docks / streets / roof / store), drawn in code |
+| `scripts/city_backdrop.gd` | Parallax Vice Slime city behind every level (docks / streets / roof) and the **game store front** in the boss arena, all drawn in code |
 | `scripts/rival.gd`, `scripts/enemy_shot.gd` | Rival buyers + Line Cutter mini-boss (original characters drawn in code) |
 | `scripts/guard.gd`, `scripts/projectile.gd`, `assets/hamsters/` | Hamster guards, power shots and sparks |
 | `scenes/raid_lobby.tscn`, `scripts/raid_lobby.gd`, `scripts/raid_camera.gd` | BOSS RAID co-op: join lobby + shared zooming camera |
@@ -79,7 +87,9 @@ Levels are text maps in `scripts/levels.gd`.
 | `scripts/boss_portrait.gd` + `assets/boss/` | Boss face next to the health bar that reacts (smug, angry, squashed, enraged, defeated). Drop hand-drawn PNGs in `assets/boss/` to replace the placeholder |
 | `scripts/ending.gd` | After the boss: MISSION PASSED, then all your old bodies stand up. "They all got back up." |
 | `scripts/vice_layer.gd` | GTA VI parody layer: sunset tint, SLIME ALERT stars, BOUNCED death screen, MISSION PASSED, meme title card. Game title constant lives here |
-| `tests/test_bounce.gd`, `tests/test_hk.gd`, `tests/test_raid.gd` | Automatic tests: `godot --headless -s tests/<file>.gd` should print `RESULT: PASS` |
+| `scenes/menu.tscn`, `scenes/intro.tscn`, `scripts/pause_menu.gd`, `scripts/game_feel.gd`, `scripts/scene_transition.gd` | Mazen: title screen, story intro, pause menu, hit/landing feel, fades |
+| `assets/boss/final/` | THE VICE QUEEN: body + 6 mood portraits (team art). Name/line in `scripts/slime_king.gd` |
+| `tests/test_*.gd` (13 tests) | `godot --headless -s tests/<file>.gd` should print `RESULT: PASS`. `tests/demo_full.gd` records the full-game trailer |
 | `export_presets.cfg` | Web export preset (Project → Export → Web) |
 
 ## Level design numbers (tile = 16 px)
