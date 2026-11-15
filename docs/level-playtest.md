@@ -49,6 +49,8 @@ Normal and secret routes use actual inputs, live enemies, health, and movement. 
 
 The locked-gate assertion calls the exit handler directly. After the Line Cutter is beaten, the player physically enters the door and the test asserts the scene transition. Human verification of entering the locked door through its collision signal is still needed. The tests do not beat the final boss or test physical controllers.
 
+The coin collision test does not separately exercise two players entering in the same physics step; its re-entry occurs after the pickup animation disables collision. The production once guard is present, but that particular branch is not directly covered.
+
 The fight controller uses nail attacks, pogo, and power shots; ZOOM's off-edge recovery uses an actual jump, dash, and pogo. It does not move the enemy by script. BRAINS and SPARK use their specials. ZOOM's shoulder charge remains a human playtest item.
 
 ## Death counts and minimum-death limits
