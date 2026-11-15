@@ -7,6 +7,7 @@ const SLIME_SCENE = preload("res://scenes/slime.tscn")
 const KILLZONE_SCENE = preload("res://scenes/killzone.tscn")
 const FONT = preload("res://assets/fonts/PixelOperator8-Bold.ttf")
 const Ending = preload("res://scripts/ending.gd")
+const Portrait = preload("res://scripts/boss_portrait.gd")
 
 const MAX_HP := 10
 const GRAVITY := 900.0
@@ -26,6 +27,7 @@ var dead := false
 var sprite: AnimatedSprite2D
 var bar: ColorRect
 var bar_bg: ColorRect
+var portrait
 var sfx_slam: AudioStreamPlayer
 var sfx_hit: AudioStreamPlayer
 var sfx_clank: AudioStreamPlayer
@@ -103,7 +105,8 @@ func _physics_process(delta: float) -> void:
 		"sleep":
 			# wakes up when you get close
 			if absf(to_player) < 170.0:
-				_toast("THE SLIME KING AWAKENS", Color(0.85, 0.55, 1.0))
+				_toast("THE SLIME KINGPIN AWAKENS", Color(0.85, 0.55, 1.0))
+				portrait.react("smug", 1.5)
 				state = "idle"
 				state_t = 1.0
 				bar.get_parent().visible = true
@@ -146,6 +149,7 @@ func _slam() -> void:
 	sprite.scale = Vector2(SIZE * 1.4, SIZE * 0.6)
 	create_tween().tween_property(sprite, "scale", Vector2(SIZE, SIZE), 0.3).set_trans(Tween.TRANS_ELASTIC)
 	sfx_slam.play()
+	portrait.react("angry", 0.4)
 	if gm:
 		gm._shake(6.0)
 	# shockwave: hurts you if you're on the ground nearby (jump over it!)
@@ -171,17 +175,21 @@ func on_nail_hit(by: Node2D) -> void:
 		sfx_clank.pitch_scale = 0.6
 		sfx_clank.play()
 		_toast("CLANK! Strike from above!", Color.WHITE)
+		portrait.react("smug", 0.8)
 		by.velocity.x = 220.0 * signf(by.global_position.x - global_position.x)
 		return
 	hp -= 1
 	_update_bar()
+	portrait.react("squashed", 0.5)
 	sfx_hit.play()
 	sprite.modulate = Color(3, 3, 3)
 	create_tween().tween_property(sprite, "modulate", Color(1.0, 0.6, 0.7) if hp <= MAX_HP / 2 else Color.WHITE, 0.2)
 	if gm:
 		gm._shake(3.0)
 	if hp == MAX_HP / 2:
-		_toast("THE KING IS ANGRY", Color(1, 0.4, 0.4))
+		_toast("THE KINGPIN IS FURIOUS", Color(1, 0.4, 0.4))
+		portrait.set_base("enraged")
+		portrait.react("enraged", 1.0)
 		sprite.modulate = Color(1.0, 0.4, 0.6)
 	if hp <= 0:
 		_die()
@@ -189,6 +197,7 @@ func on_nail_hit(by: Node2D) -> void:
 
 func _die() -> void:
 	dead = true
+	portrait.react("defeated", 0.0)
 	for m in minions:
 		if is_instance_valid(m):
 			m.queue_free()
@@ -204,6 +213,7 @@ func _die() -> void:
 		gm._shake(10.0)
 	await get_tree().create_timer(0.6 * 0.3).timeout
 	Engine.time_scale = 1.0
+	await get_tree().create_timer(1.2).timeout
 	bar.get_parent().visible = false
 	var e = Ending.new()
 	get_parent().add_child(e)
@@ -236,7 +246,7 @@ func _build_bar() -> void:
 	layer.visible = false
 	add_child(layer)
 	var name_l := Label.new()
-	name_l.text = "SLIME KING"
+	name_l.text = "SLIME KINGPIN"
 	name_l.add_theme_font_override("font", FONT)
 	name_l.add_theme_font_size_override("font_size", 16)
 	name_l.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -253,6 +263,10 @@ func _build_bar() -> void:
 	bar.position = Vector2(378, 586)
 	bar.size = Vector2(396, 8)
 	layer.add_child(bar)
+	portrait = Portrait.new()
+	portrait.position = Vector2(282, 524)
+	portrait.set_placeholder(sprite.sprite_frames.get_frame_texture(sprite.animation, 0))
+	layer.add_child(portrait)
 	_update_bar()
 
 

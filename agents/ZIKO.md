@@ -34,5 +34,7 @@ A judge should understand "dying helps me bounce back" within 60 seconds of Leve
 4. **Level 3, "The Tower":** a vertical climb that needs **2+ bodies** at different heights (death spikes on different floors), plus pogo sections. Coins reward risky routes.
 5. **Polish pass:** make sure all 3 levels can be finished. Report the minimum deaths per level and anything that felt unfair.
 
+6. **Boss portrait art (draw by hand, not with AI):** draw an ORIGINAL Vice Slime crime-boss character (no GTA/Rockstar characters) as 6 square PNGs (64x64 is fine) in Piskel (piskelapp.com), Aseprite or LibreSprite: `portrait_idle`, `portrait_smug`, `portrait_angry`, `portrait_squashed`, `portrait_enraged`, `portrait_defeated`. Put them in `assets/boss/`. The boss fight uses them automatically (see `assets/boss/README.md`). This is a drawing task; your agent only needs to check the file names.
+
 ## Done when
 All 3 levels can be beaten start to finish, each goal loads the next level, and **level 3's goal loads `scenes/boss_arena.tscn`** (the Slime Kingpin boss, already built).
