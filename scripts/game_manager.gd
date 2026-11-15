@@ -169,6 +169,8 @@ func hit_enemy(enemy: Node, by: Node2D) -> void:
 	if not is_instance_valid(enemy) or enemy.has_meta("dying"):
 		return
 	heat += 1.0
+	var pw = by.get("power")
+	Sfx.play("smash" if pw != null and int(pw) > 1 else "hit", -2.0)
 	if by.is_in_group("player"):
 		soul = minf(soul + 11.0, 99.0)
 		_update_hud()
@@ -195,6 +197,7 @@ func damage_enemy(enemy: Node, by: Node2D) -> void:
 		_toast("SMASH!")
 	if hp <= 0:
 		enemy.set_meta("dying", true)
+		Sfx.play("enemy_down", -4.0, 0.0)
 		score += 2                                   # enemies drop geo
 		_update_hud()
 		_shake(3.0)

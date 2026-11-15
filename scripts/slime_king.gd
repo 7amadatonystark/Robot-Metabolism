@@ -183,6 +183,7 @@ func _slam() -> void:
 		shot.life = 3.0
 		shot.velocity = Vector2(clampf(dx / 1.1, -260.0, 260.0), -150.0)
 		get_parent().add_child(shot)
+		Sfx.play("throw", -6.0)
 	# phase 2: spawn slimes
 	minions = minions.filter(func(m): return is_instance_valid(m))
 	if phase() == 2 and minions.size() < 3 and randf() < 0.6:
@@ -247,6 +248,7 @@ func on_nail_hit(by: Node2D) -> void:
 
 func _die() -> void:
 	dead = true
+	Sfx.play("victory", 0.0, 0.0)
 	portrait.react("defeated", 0.0)
 	for m in minions:
 		if is_instance_valid(m):

@@ -12,7 +12,7 @@
 - All files in `assets/` are byte-for-byte identical to the Brackeys originals (checked).
 - **Hamster guards + Hamster Godfather + boss portraits** (`assets/hamsters/`, `assets/boss/`): cut from meme drawings supplied by the team. **Source/artist: TODO, fill in.**
 - **Fighters SPARK / ZOOM / BRAINS** (`assets/characters/`): cut from 3 character sheets supplied by the team. **Source/artist: TODO, fill in who made them.**
-- (Add any Kenney CC0 assets you use here.)
+- **Sound effects: Kenney (www.kenney.nl), CC0 1.0.** "Impact Sounds" (nail hits, smashes), "Music Jingles" (mission passed, bounced, victory, bounce-back ding, enemy down) and "Interface Sounds" (tag throw). Files in `assets/sounds/kenney/`, license in `LICENSE_CC0.txt`. Human-made, not AI-generated.
 
 ## Audit vs. the original tutorial (checked file by file)
 | File | Status |

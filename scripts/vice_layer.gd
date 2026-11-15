@@ -95,6 +95,7 @@ func _star(c: Vector2, r: float, col: Color) -> void:
 
 # ---------------- big moments ----------------
 func bounced() -> void:
+	Sfx.play("bounced", -2.0, 0.0)
 	var grey := ColorRect.new()
 	grey.color = Color(0.1, 0.1, 0.12, 0.0)
 	grey.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -113,6 +114,7 @@ func bounced() -> void:
 
 
 func mission_passed() -> void:
+	Sfx.play("mission_passed", 0.0, 0.0)
 	_flash_text("MISSION PASSED", Color(1, 0.8, 0.2), 48, Vector2(0, -40), 2.4)
 	_flash_text("RESPECT +", Color.WHITE, 20, Vector2(0, 20), 2.4)
 

@@ -25,6 +25,9 @@ func reflect(p: Node2D) -> void:
 		return
 	reflected = true
 	by_player = p
+	var sfx = get_node_or_null("/root/Sfx")
+	if sfx:
+		sfx.play("parry", 0.0, 0.0)
 	life = 2.0
 	gravity = 0.0
 	var target := _nearest_enemy()
