@@ -17,10 +17,7 @@ func play(gm, player) -> void:
 	add_child(sfx)
 	var i := 0
 	for b in bodies:
-		var tw = b.create_tween()
-		tw.tween_property(b.sprite, "rotation_degrees", 0.0, 0.35).set_trans(Tween.TRANS_BACK)
-		tw.parallel().tween_property(b.sprite, "position:y", -12.0, 0.35)
-		tw.parallel().tween_property(b.sprite, "modulate", Color(1, 1, 1, 1), 0.35)
+		b.stand_up()
 		sfx.pitch_scale = 0.8 + i * 0.08
 		sfx.play()
 		i += 1

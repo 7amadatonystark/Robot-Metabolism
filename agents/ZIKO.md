@@ -10,6 +10,9 @@ Make 3 short levels that teach and combine the two "bounce back" moves:
 
 A judge should understand "dying helps me bounce back" within 60 seconds of Level 1.
 
+## Fighters
+Players pick SPARK, ZOOM or BRAINS first (`scenes/character_select.tscn`). ZOOM is 20% faster and SPARK reaches further, so make sure every level works with the **slowest** fighter (SPARK / BRAINS). When you test a level with F6, you play as the Brackeys knight (same speed as SPARK/BRAINS).
+
 ## Numbers (tile = 16 px)
 - Normal jump ≈ 2 tiles up. Pogo ≈ 2 tiles up from the hit point (chainable).
 - Body bounce ≈ 4–5 tiles (hold jump ≈ 5–6). Dash ≈ 3–4 tiles across (1 air dash).
@@ -33,8 +36,6 @@ A judge should understand "dying helps me bounce back" within 60 seconds of Leve
 3. **Level 2, "Old Knights":** a pogo chain over 3 slimes or spikes, a dash gap, one body puzzle, a bench between sections, and a moving platform (`scenes/platform.tscn`).
 4. **Level 3, "The Tower":** a vertical climb that needs **2+ bodies** at different heights (death spikes on different floors), plus pogo sections. Coins reward risky routes.
 5. **Polish pass:** make sure all 3 levels can be finished. Report the minimum deaths per level and anything that felt unfair.
-
-6. **Boss portrait art (draw by hand, not with AI):** draw an ORIGINAL Vice Slime crime-boss character (no GTA/Rockstar characters) as 6 square PNGs (64x64 is fine) in Piskel (piskelapp.com), Aseprite or LibreSprite: `portrait_idle`, `portrait_smug`, `portrait_angry`, `portrait_squashed`, `portrait_enraged`, `portrait_defeated`. Put them in `assets/boss/`. The boss fight uses them automatically (see `assets/boss/README.md`). This is a drawing task; your agent only needs to check the file names.
 
 ## Done when
 All 3 levels can be beaten start to finish, each goal loads the next level, and **level 3's goal loads `scenes/boss_arena.tscn`** (the Slime Kingpin boss, already built).

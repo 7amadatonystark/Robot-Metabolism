@@ -3,6 +3,8 @@
 # POGO (down-slash bounces you), dash, masks/knockback, hazard respawn, bouncing on old bodies.
 extends CharacterBody2D
 
+const Characters = preload("res://scripts/characters.gd")
+
 
 const SPEED = 130.0
 const JUMP_VELOCITY = -300.0
@@ -29,6 +31,11 @@ var last_safe := Vector2.ZERO      # last solid ground (for hazard respawn)
 var safe_t := 0.0
 var slash_t := 0.0                 # slash effect timer
 var slash_dir := Vector2.RIGHT
+var speed_mult := 1.0              # character perks (see characters.gd)
+var reach := 1.0
+var custom_char := false           # true = using a chosen fighter instead of the Brackeys knight
+var base_scale := Vector2.ONE
+var attack_anim_t := 0.0
 
 @onready var animated_sprite = $AnimatedSprite2D
 @onready var collision = $CollisionShape2D
@@ -41,6 +48,7 @@ var sfx_slash: AudioStreamPlayer
 func _ready():
 	add_to_group("player")
 	_setup_inputs()
+	_apply_character()
 	last_safe = global_position
 	sfx_jump = _make_sfx("res://assets/sounds/jump.wav")
 	sfx_hurt = _make_sfx("res://assets/sounds/hurt.wav")
@@ -65,6 +73,23 @@ func _setup_inputs() -> void:
 				InputMap.action_add_event(action, ev)
 
 
+# Swap the Brackeys knight for the fighter picked on the select screen
+func _apply_character() -> void:
+	var c: Dictionary = Characters.get_selected()
+	if c.is_empty():
+		base_scale = animated_sprite.scale
+		return
+	custom_char = true
+	speed_mult = c.speed
+	reach = c.reach
+	animated_sprite.sprite_frames = Characters.build_frames(c)
+	animated_sprite.position = Vector2.ZERO
+	animated_sprite.scale = Vector2.ONE * Characters.SPRITE_SCALE
+	base_scale = animated_sprite.scale
+	animated_sprite.play("idle")
+	Characters.fit_sprite(animated_sprite)
+
+
 func _make_sfx(path: String) -> AudioStreamPlayer:
 	var p := AudioStreamPlayer.new()
 	p.stream = load(path)
@@ -77,6 +102,7 @@ func _physics_process(delta):
 	attack_cd = maxf(attack_cd - delta, 0.0)
 	dash_cd = maxf(dash_cd - delta, 0.0)
 	slash_t = maxf(slash_t - delta, 0.0)
+	attack_anim_t = maxf(attack_anim_t - delta, 0.0)
 	stun = maxf(stun - delta, 0.0)
 	animated_sprite.modulate.a = 0.45 if (invuln > 0.0 and int(invuln * 20) % 2 == 0) else 1.0
 	queue_redraw()
@@ -134,19 +160,23 @@ func _physics_process(delta):
 		_attack()
 
 	# Play animations
-	if is_on_floor():
+	if custom_char and attack_anim_t > 0.0:
+		animated_sprite.play("attack")
+	elif is_on_floor():
 		if direction == 0:
 			animated_sprite.play("idle")
 		else:
 			animated_sprite.play("run")
 	else:
 		animated_sprite.play("jump")
+	if custom_char:
+		Characters.fit_sprite(animated_sprite)
 
 	# Apply movement
 	if direction:
-		velocity.x = direction * SPEED
+		velocity.x = direction * SPEED * speed_mult
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
+		velocity.x = move_toward(velocity.x, 0, SPEED * speed_mult)
 
 	move_and_slide()
 	_check_bounce()
@@ -174,6 +204,7 @@ func _attack() -> void:
 		dir = Vector2.UP
 	slash_dir = dir
 	slash_t = 0.12
+	attack_anim_t = 0.25
 	sfx_slash.play()
 
 	var rect := RectangleShape2D.new()
@@ -185,8 +216,8 @@ func _attack() -> void:
 		rect.size = Vector2(16, 18)
 		offset = Vector2(0, -26)
 	else:
-		rect.size = Vector2(22, 14)
-		offset = Vector2(facing * 15, -8)
+		rect.size = Vector2(22 * reach, 14)
+		offset = Vector2(facing * (4 + 11 * reach), -8)
 
 	var q := PhysicsShapeQueryParameters2D.new()
 	q.shape = rect
@@ -244,8 +275,8 @@ func _check_bounce() -> void:
 
 func _squash() -> void:
 	var tw := create_tween()
-	animated_sprite.scale = Vector2(0.7, 1.35)
-	tw.tween_property(animated_sprite, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	animated_sprite.scale = base_scale * Vector2(0.7, 1.35)
+	tw.tween_property(animated_sprite, "scale", base_scale, 0.3).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 
 func _draw() -> void:
@@ -258,7 +289,7 @@ func _draw() -> void:
 	elif slash_dir == Vector2.UP:
 		draw_arc(Vector2(0, -16), 14.0, deg_to_rad(200), deg_to_rad(340), 12, col, 3.0)
 	else:
-		var c := Vector2(facing * 6, -8)
+		var c := Vector2(facing * (6 + 8 * (reach - 1.0)), -8)
 		var start := -60.0 if facing > 0 else 120.0
 		draw_arc(c, 14.0, deg_to_rad(start), deg_to_rad(start + 120.0), 12, col, 3.0)
 
@@ -270,6 +301,9 @@ func take_hit(from_pos: Vector2) -> void:
 	var side := 1.0 if global_position.x >= from_pos.x else -1.0
 	velocity = Vector2(KNOCKBACK.x * side, KNOCKBACK.y)
 	animated_sprite.modulate = Color(1, 0.5, 0.5)
+	if custom_char:
+		animated_sprite.play("hurt")
+		Characters.fit_sprite(animated_sprite)
 	create_tween().tween_property(animated_sprite, "modulate", Color.WHITE, 0.3)
 	sfx_hurt.play()
 

@@ -9,6 +9,14 @@ Assets: Brackeys Platformer Bundle (CC0): https://brackeysgames.itch.io/brackeys
 
 ## Run
 Open Godot 4.3+, click **Import**, select `project.godot`, then press **F5**.
+The game starts on **CHOOSE YOUR FIGHTER**: ←/→ to pick, ENTER to play, **B** to jump straight to the boss.
+
+### Fighters
+| Fighter | Perk |
+|---|---|
+| SPARK | Long reach: nail hits 40% further |
+| ZOOM | +20% run speed |
+| BRAINS | 6 masks instead of 5 |
 
 ### Controls (Hollow Knight style)
 | Key | Action |
@@ -35,6 +43,8 @@ Open Godot 4.3+, click **Import**, select `project.godot`, then press **F5**.
 | `scripts/checkpoint.gd` + `scenes/checkpoint.tscn` | **Bench**: drag into a level (respawn here + heal) |
 | `scenes/boss_arena.tscn` + `scripts/boss_arena.gd` | Boss room "The Throne", built from Brackeys tiles (`assets/world_tileset.tres`) |
 | `scripts/slime_king.gd` | **Slime Kingpin** boss: hops, slams (jump the shockwave), spawns slimes in phase 2. Only pogo hits hurt him |
+| `scenes/character_select.tscn` + `scripts/character_select.gd` | Home screen: CHOOSE YOUR FIGHTER (main scene) |
+| `scripts/characters.gd` + `assets/characters/` | Fighter list, perks, animation mapping (rename fighters here) |
 | `scripts/boss_portrait.gd` + `assets/boss/` | Boss face next to the health bar that reacts (smug, angry, squashed, enraged, defeated). Drop hand-drawn PNGs in `assets/boss/` to replace the placeholder |
 | `scripts/ending.gd` | After the boss: MISSION PASSED, then all your old bodies stand up. "They all got back up." |
 | `scripts/vice_layer.gd` | GTA VI parody layer: sunset tint, SLIME ALERT stars, BOUNCED death screen, MISSION PASSED, meme title card. Game title constant lives here |

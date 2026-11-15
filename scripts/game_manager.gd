@@ -7,6 +7,7 @@ extends Node
 
 const BodyPad = preload("res://scripts/body_pad.gd")
 const ViceLayer = preload("res://scripts/vice_layer.gd")
+const Characters = preload("res://scripts/characters.gd")
 const FONT = preload("res://assets/fonts/PixelOperator8-Bold.ttf")
 const MAX_BODIES := 25
 const MAX_MASKS := 5
@@ -14,6 +15,7 @@ const ENEMY_HP := 2
 
 var score = 0                 # = GEO (Brackeys coins)
 var deaths := 0
+var max_masks := MAX_MASKS    # BRAINS gets 6
 var masks := MAX_MASKS
 var respawn_point := Vector2.ZERO
 var dead := false
@@ -30,6 +32,10 @@ var heat := 0.0               # SLIME ALERT: goes up when you fight, cools down 
 
 func _ready():
 	add_to_group("game_manager")
+	var c: Dictionary = Characters.get_selected()
+	if not c.is_empty():
+		max_masks = c.masks
+		masks = max_masks
 	_build_hud()
 	add_child(ViceLayer.new())             # GTA VI parody layer (stars, BOUNCED, MISSION PASSED)
 	await get_tree().process_frame          # wait for the whole level to load
@@ -51,7 +57,7 @@ func add_point():
 # BENCH: respawn here + full heal
 func set_checkpoint(pos: Vector2) -> void:
 	respawn_point = pos
-	masks = MAX_MASKS
+	masks = max_masks
 	_update_hud()
 	_toast("BENCH: RESTED")
 
@@ -95,7 +101,7 @@ func player_died(leave_body := true) -> void:
 	Engine.time_scale = 1.0
 	if leave_body:
 		_spawn_body(where, facing_left, dropped)
-	masks = MAX_MASKS
+	masks = max_masks
 	player.respawn(respawn_point)
 	_update_hud()
 	dead = false
@@ -105,6 +111,9 @@ func _spawn_body(pos: Vector2, facing_left: bool, geo: int) -> void:
 	var b = BodyPad.new()
 	b.frames = player.animated_sprite.sprite_frames
 	b.flip = facing_left
+	b.sprite_scale = player.base_scale
+	var ch: Dictionary = Characters.get_selected()
+	b.lying_anim = not ch.is_empty() and not ch.knockdown_rotate
 	b.geo = geo
 	b.global_position = pos
 	get_tree().current_scene.add_child(b)
@@ -175,7 +184,7 @@ func _make_label(size: int, pos: Vector2) -> Label:
 
 
 func _draw_masks() -> void:
-	for i in MAX_MASKS:
+	for i in max_masks:
 		var c := Vector2(10 + i * 22, 10)
 		var full := i < masks
 		hud.draw_circle(c, 9.0, Color.BLACK)
