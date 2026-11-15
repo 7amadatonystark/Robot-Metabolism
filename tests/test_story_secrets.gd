@@ -32,10 +32,8 @@ func run():
 		ok = await sacrifice(664) and ok
 	elif level == 2:
 		ok = await walk(144)
-		ok = await jump(200, 176) and ok
-		ok = await jump(248, 176) and ok
-		ok = await jump(296, 176) and ok
-		ok = await jump(370, 176) and ok
+		ok = await pogo_jump(248, 176, true) and ok
+		ok = await pogo_jump(370, 176, true) and ok
 		ok = await walk(510) and ok
 		ok = await jump(640, 176, 180, true) and ok
 		ok = await walk(696) and ok
