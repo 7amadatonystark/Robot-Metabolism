@@ -35,4 +35,4 @@ A judge should understand "dying helps me bounce back" within 60 seconds of Leve
 5. **Polish pass:** make sure all 3 levels can be finished. Report the minimum deaths per level and anything that felt unfair.
 
 ## Done when
-All 3 levels can be beaten start to finish, each goal loads the next level, and level 3's goal loads `scenes/win.tscn` (Mazen makes that; until then, load `scenes/level_1.tscn`).
+All 3 levels can be beaten start to finish, each goal loads the next level, and **level 3's goal loads `scenes/boss_arena.tscn`** (the Slime Kingpin boss, already built).

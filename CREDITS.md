@@ -4,6 +4,7 @@
 - **Brackeys, "How to make a Video Game - Godot Beginner Tutorial"** (YouTube, Apr 2024): https://www.youtube.com/watch?v=LOhfqjmasi0
 - Source: https://github.com/Brackeys/first-game-in-godot, released into the **public domain** (Unlicense, see `LICENSE-brackeys.txt`).
 - Mechanics inspired by **Hollow Knight** (Team Cherry): pogo, masks, benches, dash, Shade. Inspiration only; no Hollow Knight code or assets are used.
+- The "Vice Slime" layer is a **parody** of GTA VI conventions (wanted stars, WASTED, Mission Passed): text and colors only. No Rockstar logos, fonts, art or names are used.
 
 ## Assets: 100% human-made, none AI-generated
 - **Brackeys Platformer Bundle** (CC0): https://brackeysgames.itch.io/brackeys-platformer-bundle
