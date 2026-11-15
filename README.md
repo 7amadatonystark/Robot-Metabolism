@@ -22,6 +22,15 @@ The camera zooms out to keep everyone and the boss on screen. When a player dies
 GTA VI drops today. Fight through the line of rival buyers (meme hamsters) across **The Docks → Neon Streets → The Roof** to the store, and beat **THE HAMSTER GODFATHER** (a scalper) for the **last copy**.
 Levels are text maps in `scripts/levels.gd`.
 
+### Enemies
+| Map letter | Enemy |
+|---|---|
+| `g` `h` `f` | Hamster guards: lollipop, smug, flame |
+| `s` | Scalper: throws price tags |
+| `t` | Streamer: fast, spams chat |
+| `o` | Preorder guy: receipt shield (pogo him or hit his back) |
+| `L` | THE LINE CUTTER: mini-boss that guards the store door |
+
 ### Skills
 | Key (keyboard / PS4) | Skill |
 |---|---|
@@ -63,6 +72,7 @@ Levels are text maps in `scripts/levels.gd`.
 | `scenes/character_select.tscn` + `scripts/character_select.gd` | Home screen: CHOOSE YOUR FIGHTER (main scene) |
 | `scenes/story_level.tscn`, `scripts/story_level.gd`, `scripts/levels.gd` | Story levels built from text maps |
 | `scripts/city_backdrop.gd` | Parallax Vice Slime city behind every level (docks / streets / roof / store), drawn in code |
+| `scripts/rival.gd`, `scripts/enemy_shot.gd` | Rival buyers + Line Cutter mini-boss (original characters drawn in code) |
 | `scripts/guard.gd`, `scripts/projectile.gd`, `assets/hamsters/` | Hamster guards, power shots and sparks |
 | `scenes/raid_lobby.tscn`, `scripts/raid_lobby.gd`, `scripts/raid_camera.gd` | BOSS RAID co-op: join lobby + shared zooming camera |
 | `scripts/characters.gd` + `assets/characters/` | Fighter list, perks, animation mapping (rename fighters here) |

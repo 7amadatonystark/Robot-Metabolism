@@ -164,8 +164,15 @@ func hit_enemy(enemy: Node, by: Node2D) -> void:
 	if by.is_in_group("player"):
 		soul = minf(soul + 11.0, 99.0)
 		_update_hud()
-	if enemy.has_method("on_nail_hit"):     # bosses handle their own damage
+	if enemy.has_method("on_nail_hit"):     # bosses / special enemies handle their own damage
 		enemy.on_nail_hit(by)
+		return
+	damage_enemy(enemy, by)
+
+
+# Default damage for normal enemies (special enemies call this from their own on_nail_hit)
+func damage_enemy(enemy: Node, by: Node2D) -> void:
+	if not is_instance_valid(enemy) or enemy.has_meta("dying"):
 		return
 	var power: int = by.get("power") if by.get("power") != null else 1
 	var hp: int = enemy.get_meta("hp", ENEMY_HP) - power

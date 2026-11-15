@@ -4,6 +4,7 @@ extends Node2D
 
 const Levels = preload("res://scripts/levels.gd")
 const Guard = preload("res://scripts/guard.gd")
+const Rival = preload("res://scripts/rival.gd")
 const TILESET = preload("res://assets/world_tileset.tres")
 const KILLZONE = preload("res://scenes/killzone.tscn")
 const COIN = preload("res://scenes/coin.tscn")
@@ -79,6 +80,11 @@ func _build() -> void:
 					g.kind = {"g": "lolli", "h": "smug", "f": "flame"}[ch]
 					g.position = pos
 					add_child(g)
+				"s", "t", "o", "L":
+					var rv = Rival.new()
+					rv.kind = {"s": "scalper", "t": "streamer", "o": "preorder", "L": "line_cutter"}[ch]
+					rv.position = pos
+					add_child(rv)
 				"=":
 					if x % 2 == 0:
 						var p = PLATFORM.instantiate()
@@ -173,6 +179,11 @@ func _make_exit(pos: Vector2) -> void:
 
 func _on_exit(body) -> void:
 	if done or not body.is_in_group("player"):
+		return
+	# the Line Cutter blocks the door until he's beaten
+	var blockers := get_tree().get_nodes_in_group("gatekeeper").filter(func(n): return is_instance_valid(n) and not n.has_meta("dying"))
+	if blockers.size() > 0:
+		blockers[0].say("Nobody gets in. Beat me first.")
 		return
 	done = true
 	var gm = get_tree().get_first_node_in_group("game_manager")

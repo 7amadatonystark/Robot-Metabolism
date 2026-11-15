@@ -21,7 +21,7 @@
 - [x] BOSS RAID local co-op for 3 (PS4 pads), shared camera
 - [x] City backdrop, GTA-parody layer, game renamed BEFORE IT DROPS
 - [x] Tests: `tests/test_bounce.gd`, `tests/test_hk.gd`, `tests/test_raid.gd`
-- [ ] Rival buyers (scalper, streamer, preorder guy) + Line Cutter mini-boss
+- [x] Rival buyers (scalper, streamer, preorder guy) + Line Cutter mini-boss
 - [ ] Merge PRs, playtest with real PS4 pads
 - [ ] Web build + trailer → itch.io
 - [ ] Fill in the "Source/artist: TODO" lines in `CREDITS.md`

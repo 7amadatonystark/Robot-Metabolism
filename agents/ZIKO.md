@@ -21,7 +21,7 @@ Legend:
 | `1`-`9` | sign (text in `"signs"`) |
 | `.` | empty (falling below the map = pit) |
 
-**Coming soon (Abdullah is adding these now):** original "rival buyer" enemies with the letters `s` scalper, `t` streamer, `o` preorder guy, and the mini-boss `L` line cutter in front of the store door. Ignore these letters until they're on `main`.
+**Rival buyers (ready on `main`):** `s` scalper (throws price tags) · `t` streamer (fast) · `o` preorder guy (receipt shield: pogo him or hit his back) · `L` THE LINE CUTTER mini-boss (the exit stays locked until he's beaten; one is already on the Level 3 roof).
 
 ## Numbers (tile = 16 px)
 - Normal jump ≈ 2.9 tiles up and ≈ 5 tiles across. Pogo ≈ 2.9 tiles up from the hit point.
@@ -33,7 +33,7 @@ Legend:
 1. **Playtest Levels 1-3** with SPARK, ZOOM and BRAINS. Each must be beatable. Fix anything impossible or boring by editing the maps.
 2. **Secrets:** 1-2 per level, coins on high ledges reachable only by a body bounce or a pogo chain.
 3. **Guards:** more in Level 2, a flame guard on the Level 3 ledge.
-4. **When the rival buyers are on `main`:** add a few `s` / `t` / `o` to each level and an `L` right before the Level 3 exit.
+4. **Rival buyers:** add a few `s` / `t` / `o` to each level (one of each is already placed in Levels 1-2). Make sure the Line Cutter's roof is wide enough for his charge to be dodgeable.
 5. **Report** the minimum deaths per level and anything unfair.
 
 ## Done when

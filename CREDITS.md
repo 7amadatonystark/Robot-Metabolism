@@ -28,6 +28,7 @@
 | `scripts/characters.gd`, `scripts/character_select.gd`, `scenes/character_select.tscn` | New: fighter select + per-fighter perks/animations |
 | `scripts/raid_lobby.gd`, `scripts/raid_camera.gd`, `scenes/raid_lobby.tscn` | New: local co-op BOSS RAID |
 | `scripts/story_level.gd`, `scripts/levels.gd`, `scripts/guard.gd`, `scripts/projectile.gd`, `scenes/story_level.tscn` | New: story mode, guards, specials, power shot |
+| `scripts/rival.gd`, `scripts/enemy_shot.gd` | New: original rival-buyer characters + Line Cutter mini-boss, drawn in code |
 | `scripts/city_backdrop.gd` | New: city skyline background drawn in code (original, no images) |
 | `assets/world_tileset.tres` | Brackeys tileset, exported from `game.tscn` so other scenes can use it |
 | `tests/*` | New: test and demo tools (not part of the game) |
