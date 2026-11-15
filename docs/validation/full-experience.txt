@@ -1,0 +1,19 @@
+Godot 4.3.stable.official.77dcf97d8; --headless --fixed-fps 60
+Branch: mazen/full-experience
+test_bounce.gd: PASS (exit 0) RESULT: PASS
+test_feel.gd: PASS (exit 0) RESULT: PASS (feel)
+test_fighter_animation.gd: PASS (exit 0) RESULT: PASS (fighter animation)
+test_hazard_respawn.gd: PASS (exit 0) RESULT: PASS (hazard respawn)
+test_hk.gd: PASS (exit 0) RESULT: PASS
+test_intro.gd: PASS (exit 0) RESULT: PASS
+test_parry.gd: PASS (exit 0) RESULT: PASS
+test_pause.gd: PASS (exit 0) RESULT: PASS (pause)
+test_raid.gd: PASS (exit 0) RESULT: PASS
+test_stats.gd: PASS (exit 0) RESULT: PASS (stats)
+test_story_coin.gd: PASS (exit 0) RESULT: PASS
+test_story_layout.gd: PASS (exit 0) RESULT: PASS
+test_story_routes.gd: PASS (exit 0) RESULT: PASS
+test_story_secrets.gd: PASS (exit 0) RESULT: PASS
+editor-import: PASS (exit 0)
+startup: PASS (exit 0)
+Known upstream shutdown resource/ObjectDB warnings retained. Physical PS4 controller, visible full playthrough, and Web export are unvalidated.
