@@ -29,6 +29,8 @@ Strike a `$$$` price tag (scalpers and the Godfather throw them) and it flies ba
 Levels are text maps in `scripts/levels.gd`.
 
 ### Enemies
+Guards and rivals check the next step before moving, turn away from cliffs, walls and spikes, and settle safely onto the ground after loading. Flame guards check their landing before hopping; the Line Cutter stops and becomes stunned at edges, and scalpers need a clear line of sight to throw tags.
+
 | Map letter | Enemy |
 |---|---|
 | `g` `h` `f` | Hamster guards: lollipop, smug, flame |
@@ -89,7 +91,7 @@ Levels are text maps in `scripts/levels.gd`.
 | `scripts/vice_layer.gd` | GTA VI parody layer: sunset tint, SLIME ALERT stars, BOUNCED death screen, MISSION PASSED, meme title card. Game title constant lives here |
 | `scenes/menu.tscn`, `scenes/intro.tscn`, `scripts/pause_menu.gd`, `scripts/game_feel.gd`, `scripts/scene_transition.gd` | Mazen: title screen, story intro, pause menu, hit/landing feel, fades |
 | `assets/boss/final/` | THE VICE QUEEN: body + 6 mood portraits (team art). Name/line in `scripts/slime_king.gd` |
-| `tests/test_*.gd` (13 tests) | `godot --headless -s tests/<file>.gd` should print `RESULT: PASS`. `tests/demo_full.gd` records the full-game trailer |
+| `tests/test_*.gd` | `godot --headless -s tests/<file>.gd` should print `RESULT: PASS`. Includes narrow-platform and enemy AI regressions. `tests/demo_full.gd` records the full-game trailer |
 | `export_presets.cfg` | Web export preset (Project → Export → Web) |
 
 ## Level design numbers (tile = 16 px)
