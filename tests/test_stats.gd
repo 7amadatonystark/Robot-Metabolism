@@ -11,6 +11,7 @@ func _initialize() -> void:
 func _run() -> void:
 	var stats := root.get_node("Stats")
 	_check(stats.total_deaths == 0, "new run starts with no deaths")
+	_check(stats.total_geo == 0, "new run starts with no geo")
 	_check(stats.start_time > 0.0, "run clock is initialized")
 	var started: float = stats.start_time
 	_check(change_scene_to_file("res://scenes/game.tscn") == OK, "first level loads")
@@ -22,14 +23,17 @@ func _run() -> void:
 		return
 	_check(manager.get_node_or_null("LevelStats") != null, "tracker attaches automatically")
 	manager.deaths = 3
+	manager.score = 7
 	await process_frame
 	_check(stats.total_deaths == 0, "active level is not counted early")
 	_check(reload_current_scene() == OK, "level reloads")
 	await _wait_for_scene()
 	_check(stats.total_deaths == 3, "outgoing level contributes once")
+	_check(stats.total_geo == 7, "outgoing geo contributes once")
 	_check(stats.start_time == started, "scene change preserves run clock")
 	manager = get_first_node_in_group("game_manager")
 	manager.deaths = 2
+	manager.score = 3
 	# A scene without a manager stands in for the future win/menu screen.
 	var empty_scene := PackedScene.new()
 	var empty_root := Node.new()
@@ -38,13 +42,16 @@ func _run() -> void:
 	paused = true
 	_check(change_scene_to_packed(empty_scene) == OK, "paused scene change succeeds")
 	_check(stats.total_deaths == 5, "total is available before destination loads")
+	_check(stats.total_geo == 10, "geo is available before destination loads")
 	paused = false
 	await process_frame
 	await process_frame
 	_check(stats.total_deaths == 5, "menu frames do not duplicate deaths")
+	_check(stats.total_geo == 10, "menu frames do not duplicate geo")
 	_check(stats.start_time == started, "non-level scene preserves run clock")
 	stats.reset()
 	_check(stats.total_deaths == 0, "new run clears totals")
+	_check(stats.total_geo == 0, "new run clears geo")
 	_check(stats.start_time >= started, "new run restarts clock")
 	root.get_node("Music").stop()
 	await create_timer(0.1).timeout
