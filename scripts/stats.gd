@@ -5,6 +5,7 @@ extends Node
 const LevelStats = preload("res://scripts/level_stats.gd")
 
 var total_deaths: int = 0
+var total_geo: int = 0
 var start_time: float = 0.0
 
 
@@ -15,6 +16,7 @@ func _ready() -> void:
 
 func reset() -> void:
 	total_deaths = 0
+	total_geo = 0
 	start_time = Time.get_ticks_msec() / 1000.0
 
 
