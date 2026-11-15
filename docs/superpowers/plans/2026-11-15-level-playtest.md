@@ -34,3 +34,7 @@ Tech stack: Godot 4.3, GDScript, GL Compatibility.
 - Final verification: 9/9 scripted story routes, layout test and all 3 original tests PASS. Coin callback errors remain in all three Level 2 logs; this is not an error-free full-game claim.
 - Ruling: map fixes and their tests only; protected coin/hazard ownership and duplicate-death issues are documented for Abdullah rather than changed.
 - Ruling: a fresh checkout on ziko/levels isolates the work; no second worktree needed.
+
+- Independent review: no Critical or Important findings; independently reran all 13 invocations with the same results.
+- Final: minor (deferred): locked-gate test invokes the handler directly, rather than physically entering the locked door. Unlocked entry and scene transition are exercised physically; document the remaining human check.
+- Working branch is ready for a PR; main remains unchanged.

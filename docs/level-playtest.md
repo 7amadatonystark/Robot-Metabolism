@@ -26,7 +26,7 @@ for level in 1 2 3; do
 done
 ```
 
-All 13 invocations print `RESULT: PASS`. Story routes use actual inputs and live enemies. They do not teleport, grant health, modify movement, or remove enemies. Each starts at its selected level; they are not one continuous campaign. The Level 3 test checks the locked gate, defeats the Line Cutter, then physically enters the exit and verifies the boss scene loads. It does not beat the final boss. ZOOM's rooftop combat route uses nail attacks and power shots, rather than its shoulder charge.
+All 13 invocations print `RESULT: PASS`. Story routes use actual inputs and live enemies. They do not teleport, grant health, modify movement, or remove enemies. Each starts at its selected level; they are not one continuous campaign. The Level 3 test calls the exit handler to check the locked gate, defeats the Line Cutter, then physically enters the exit and verifies the boss scene loads. The locked-door collision signal itself still needs a human check. It does not beat the final boss. ZOOM's rooftop combat route uses nail attacks and power shots, rather than its shoulder charge.
 
 This is a headless playtest, not a visual or human difficulty review. The final Level 2 logs still contain the pre-existing coin callback script error below; `PASS` describes the asserted route, not an error-free game.
 
