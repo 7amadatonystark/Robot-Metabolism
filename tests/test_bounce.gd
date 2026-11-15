@@ -11,10 +11,20 @@ var gm
 var pl
 var bounced := false
 var body_pos := Vector2.ZERO
+var startup_frames := 0
 
 func _physics_process(_d):
+	# Godot 4.3 may run physics ticks before GameManager's awaited _ready finishes.
+	if gm == null or gm.player == null:
+		gm = get_first_node_in_group("game_manager")
+		startup_frames += 1
+		if startup_frames > 300:
+			print("RESULT: FAIL (game manager did not become ready)")
+			quit(1)
+		return false
 	f += 1
 	if f == 10:
+		root.get_node("Music").stop() # Avoid leaving audio playback running at test exit.
 		gm = get_first_node_in_group("game_manager")
 		pl = get_first_node_in_group("player")
 		print("start player at ", pl.global_position, " respawn ", gm.respawn_point)
