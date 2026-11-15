@@ -23,9 +23,9 @@ var tilemap: TileMap
 
 
 func _ready() -> void:
-	var mus = get_node_or_null("Music")
-	if mus:
-		mus.pitch_scale = 1.15   # boss fight: same track, faster and tenser
+	Music.pitch_scale = 1.15   # boss fight: same track, faster and tenser
+	if not Music.playing:
+		Music.play()
 	_build_room()
 	var bench = BENCH.instantiate()
 	bench.position = Vector2(4 * 16, 0)

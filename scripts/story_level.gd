@@ -27,6 +27,9 @@ var done := false
 
 
 func _ready() -> void:
+	Music.pitch_scale = 1.0
+	if not Music.playing:
+		Music.play()
 	index = int(Engine.get_meta("level_index", 1))
 	index = clampi(index, 1, Levels.LEVELS.size())
 	data = Levels.LEVELS[index - 1]

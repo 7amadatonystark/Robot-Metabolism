@@ -6,7 +6,6 @@ extends Node2D
 
 const Characters = preload("res://scripts/characters.gd")
 const FONT = preload("res://assets/fonts/PixelOperator8-Bold.ttf")
-const MUSIC = preload("res://scenes/music.tscn")
 const BOSS := "res://scenes/boss_arena.tscn"
 const MAX_PLAYERS := 3
 const CARD := Vector2(300, 360)
@@ -24,7 +23,9 @@ var sfx_move: AudioStreamPlayer
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color(0.08, 0.04, 0.12))
-	add_child(MUSIC.instantiate())
+	Music.pitch_scale = 1.0
+	if not Music.playing:
+		Music.play()
 	sfx_join = _sfx("res://assets/sounds/power_up.wav")
 	sfx_move = _sfx("res://assets/sounds/tap.wav")
 	ui = CanvasLayer.new()

@@ -5,7 +5,6 @@ extends Node2D
 
 const Characters = preload("res://scripts/characters.gd")
 const FONT = preload("res://assets/fonts/PixelOperator8-Bold.ttf")
-const MUSIC = preload("res://scenes/music.tscn")
 const GAME_TITLE := "BEFORE IT DROPS"
 const SUBTITLE := "We got GTA VI before release day."
 const FIRST_LEVEL := "res://scenes/story_level.tscn"
@@ -27,7 +26,9 @@ var starting := false
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color(0.08, 0.04, 0.12))
-	add_child(MUSIC.instantiate())
+	Music.pitch_scale = 1.0
+	if not Music.playing:
+		Music.play()
 	sfx_move = _sfx("res://assets/sounds/tap.wav")
 	sfx_pick = _sfx("res://assets/sounds/power_up.wav")
 	var last: String = Engine.get_meta("character", "")
