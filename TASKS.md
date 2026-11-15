@@ -1,6 +1,13 @@
 # TASKS
 
-## Ziko (paste into Codex one at a time, on your own branch)
+## Each teammate's agent has a brief
+- Ziko → `agents/ZIKO.md` (levels)
+- Mazen → `agents/MAZEN.md` (menus, UI, game feel)
+- Shared rules + required progress report → `AGENTS.md`
+
+First message to Codex: **"I'm Ziko. Read AGENTS.md and agents/ZIKO.md, then do Task 1."** (or Mazen)
+
+## Old quick prompts (Ziko, one at a time, on your own branch)
 
 **Start every prompt with:** "Godot 4.3, this repo. Don't edit scripts/player.gd, scripts/game_manager.gd, scripts/body_pad.gd or scripts/killzone.gd."
 
