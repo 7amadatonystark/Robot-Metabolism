@@ -43,6 +43,10 @@ All nine invocations print `RESULT: PASS` and explicitly report zero deaths. The
 
 These routes are precise advanced play. Death/body bouncing remains the simpler intended route. The Roof subtitle now avoids claiming two falls are required. No enemy stats, hazard logic, or movement values were changed to make the witnesses pass.
 
+## Independent verification
+
+A fresh reviewer independently ran all nine witnesses with Godot 4.3. A temporary read-only `tree_exiting` observer confirmed that each old game manager still had **0 deaths when removed**, including all Roof fighters and Neon Streets ZOOM. The reviewer found no new Critical, Important, or actionable Minor issues in the final-check changes and confirmed all 19 protected scripts match main `108507c`.
+
 ## Regression result: 35 of 36 checks pass
 
 The final combined-build run has **one known failure**:
