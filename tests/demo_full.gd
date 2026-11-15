@@ -1,0 +1,183 @@
+# ORIGIN: NEW, demo-recording script (AI-assisted). Plays the whole game automatically for the trailer:
+# title -> story intro -> fighter select -> co-op lobby -> Levels 1-3 with 3 players -> the Godfather -> ending.
+# Record: godot --path . -s tests/demo_full.gd --write-movie out.avi --fixed-fps 30
+extends SceneTree
+
+var phase := ""
+var t := 0          # frames in this phase
+var gm
+var target
+var target_t := 0
+var level_frames := {1: 700, 2: 560, 3: 640}
+var walk_t := 0
+const Levels = preload("res://scripts/levels.gd")
+
+
+func _initialize():
+	_go("menu", "res://scenes/menu.tscn")
+
+
+func _go(p: String, scene: String) -> void:
+	phase = p
+	t = 0
+	gm = null
+	target = null
+	change_scene_to_file(scene)
+
+
+func _key(code: int) -> void:
+	var e := InputEventKey.new()
+	e.keycode = code
+	e.physical_keycode = code
+	e.pressed = true
+	Input.parse_input_event(e)
+	var r := e.duplicate()
+	r.pressed = false
+	Input.parse_input_event(r)
+
+
+func _process(_d):
+	t += 1
+	match phase:
+		"menu":
+			if t == 80:
+				_go("intro", "res://scenes/intro.tscn")
+		"intro":
+			if t in [70, 75, 130, 135, 190, 195]:
+				_key(KEY_SPACE)
+			if t == 230:
+				_go("select", "res://scenes/character_select.tscn")
+		"select":
+			if t in [40, 70, 100]:
+				_key(KEY_RIGHT)
+			if t == 130:
+				_key(KEY_LEFT)
+			if t == 160:
+				phase = "lobby"
+				t = 0
+				_key(KEY_R)
+		"lobby":
+			var lobby = current_scene
+			if lobby == null or not lobby.has_method("_join"):
+				return
+			if t == 30: lobby._join(-2)
+			if t == 55: lobby._join(0)
+			if t == 70: lobby._cycle(0, 1)
+			if t == 85: lobby._join(1)
+			if t == 100: lobby._cycle(1, 1)
+			if t == 115: lobby._cycle(1, 1)
+			if t == 150:
+				lobby._start()
+				phase = "level"
+				t = -20
+		"level", "boss":
+			_fight()
+		"ending":
+			if t == 330:
+				quit()
+
+
+func _fight() -> void:
+	if t < 1:
+		return
+	if gm == null or not is_instance_valid(gm):
+		gm = get_first_node_in_group("game_manager")
+		if gm == null:
+			return
+	var ps: Array = gm.players.filter(func(p): return is_instance_valid(p))
+	if ps.size() < 3:
+		return
+	for p in ps:
+		p.invuln = maxf(p.invuln, 0.5)      # demo players don't die (except on purpose)
+	var lvl: int = int(Engine.get_meta("level_index", 1))
+	# one on-purpose death in Level 1: P3's body becomes a trampoline
+	if phase == "level" and lvl == 1 and t < 150:
+		if t == 30:
+			ps[2].invuln = 0.0
+			gm.player_died(true, ps[2])
+		if t == 70 and gm.bodies.size() > 0:
+			ps[0].global_position = gm.bodies[0].global_position + Vector2(0, -50)
+			ps[0].velocity = Vector2.ZERO
+		return
+	# pick the closest enemy still standing
+	if target == null or not is_instance_valid(target) or target.has_meta("dying") or target.get("dead") == true or target_t > 170:
+		if target and is_instance_valid(target) and target_t > 170 and not target.has_meta("dying"):
+			if target.has_method("on_nail_hit") and target.get("MAX_HP") == null:
+				gm.damage_enemy(target, ps[1])
+		target = null
+		target_t = 0
+		var bd := INF
+		for e in get_nodes_in_group("enemy_target"):
+			if not is_instance_valid(e) or e.has_meta("dying") or e.get("dead") == true:
+				continue
+			var d: float = e.global_position.distance_to(ps[0].global_position)
+			if d < bd:
+				bd = d
+				target = e
+	if target == null:
+		_walk_to_exit(ps, lvl)
+		return
+	target_t += 1
+	var tp: Vector2 = target.global_position
+	var spots := [tp + Vector2(-26, -2), tp + Vector2(0, -56), tp + Vector2(26, -2)]
+	if target.get("MAX_HP") != null:          # the Godfather is big
+		spots = [tp + Vector2(-46, -2), tp + Vector2(0, -100), tp + Vector2(46, -2)]
+	for i in 3:
+		var p = ps[i]
+		if p.is_dead:
+			continue
+		var to: Vector2 = spots[i] - p.global_position
+		p.global_position += to.limit_length(4.5)
+		p.velocity = Vector2.ZERO
+		p.facing = 1 if i == 0 else (-1 if i == 2 else p.facing)
+		if to.length() < 8.0:
+			var every: int = [24, 32, 28][i]
+			if (t + i * 5) % every == 0:
+				p.attack_cd = 0.0
+				if i == 1:
+					Input.action_press("p0_move_down")
+					p._attack()
+					Input.action_release("p0_move_down")
+				else:
+					p._attack()
+	var limit: int = level_frames.get(lvl, 500)
+	if phase == "level" and t > limit:
+		_next_scene()
+	if phase == "boss" and target.get("dead") == true:
+		pass
+
+
+func _next_scene() -> void:
+	if phase == "boss":
+		# the Godfather fell: let the ending play
+		phase = "ending"
+		t = 0
+		return
+	var lvl: int = int(Engine.get_meta("level_index", 1))
+	if lvl < 3:
+		Engine.set_meta("level_index", lvl + 1)
+		_go("level", "res://scenes/story_level.tscn")
+	else:
+		_go("boss", "res://scenes/boss_arena.tscn")
+
+
+func _walk_to_exit(ps: Array, lvl: int) -> void:
+	if phase == "boss":
+		_next_scene()
+		return
+	walk_t += 1
+	var rows: Array = Levels.LEVELS[lvl - 1].map
+	var ex := Vector2.ZERO
+	for y in rows.size():
+		var x: int = rows[y].find("E")
+		if x >= 0:
+			ex = Vector2(x * 16 + 8, (y + 1) * 16 - 2)
+	for i in ps.size():
+		var p = ps[i]
+		var to: Vector2 = ex + Vector2(i * 14 - 14, 0) - p.global_position
+		p.global_position += to.limit_length(4.0)
+		p.velocity = Vector2.ZERO
+		p.facing = 1 if to.x >= 0 else -1
+	if walk_t > 110:
+		walk_t = 0
+		_next_scene()

@@ -24,7 +24,7 @@ const Guard = preload("res://scripts/guard.gd")   # phase 2 spawns lollipop hams
 # If the picture exists, beating the Godfather starts a second, harder fight against it.
 const FINAL_BOSS_TEX := "res://assets/boss/final/body.png"
 const FINAL_BOSS_PORTRAIT := "res://assets/boss/final/portrait.png"   # optional (falls back to body.png)
-const FINAL_BOSS_NAME := "THE VICE QUEEN"
+const FINAL_BOSS_NAME := "THE FINAL BOSS"
 const FINAL_BOSS_LINE := "\"THE LAST COPY? IT WAS ALWAYS MINE.\""
 
 var is_final := false

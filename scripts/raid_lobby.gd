@@ -158,7 +158,10 @@ func _start() -> void:
 	Engine.set_meta("character", raid[0].char)
 	sfx_join.play()
 	await get_tree().create_timer(0.4).timeout
-	get_tree().change_scene_to_file(BOSS)
+	# co-op plays the whole story together: Level 1 -> 2 -> 3 -> the Godfather
+	Engine.set_meta("level_index", 1)
+	Engine.set_meta("total_deaths", 0)
+	get_tree().change_scene_to_file("res://scenes/story_level.tscn")
 
 
 func _input(event: InputEvent) -> void:

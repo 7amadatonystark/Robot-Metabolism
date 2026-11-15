@@ -13,6 +13,8 @@ const PLATFORM = preload("res://scenes/platform.tscn")
 const FONT = preload("res://assets/fonts/PixelOperator8-Bold.ttf")
 const BOSS := "res://scenes/boss_arena.tscn"
 const CityBackdrop = preload("res://scripts/city_backdrop.gd")
+const PLAYER_SCENE = preload("res://scenes/player.tscn")
+const RaidCamera = preload("res://scripts/raid_camera.gd")
 
 const TILES := {"grass": [Vector2i(0, 0), Vector2i(0, 1)], "brick": [Vector2i(5, 0), Vector2i(5, 1)],
 	"stone": [Vector2i(8, 0), Vector2i(8, 1)], "sand": [Vector2i(2, 0), Vector2i(2, 1)]}
@@ -34,6 +36,7 @@ func _ready() -> void:
 	index = clampi(index, 1, Levels.LEVELS.size())
 	data = Levels.LEVELS[index - 1]
 	_build()
+	_setup_coop()
 	var vice = get_tree().get_first_node_in_group("vice_layer")
 	if vice:
 		vice.custom_title = data.title
@@ -204,3 +207,35 @@ func _on_exit(body) -> void:
 		get_tree().reload_current_scene()
 	else:
 		get_tree().change_scene_to_file(BOSS)
+
+
+# CO-OP STORY: if the raid lobby picked 2-3 players, they play the levels together on one shared screen
+func _setup_coop() -> void:
+	var raid: Array = Engine.get_meta("raid", [])
+	if raid.size() < 2:
+		return
+	var solo := get_node_or_null("Player")
+	var start := Vector2(56, 0)
+	if solo:
+		start = solo.position
+		solo.remove_from_group("player")
+		solo.queue_free()
+	for i in raid.size():
+		var p = PLAYER_SCENE.instantiate()
+		p.device = raid[i].device
+		p.char_id = raid[i].char
+		p.player_index = i
+		p.position = start + Vector2(i * 18, 0)
+		add_child(p)
+		var tag := Label.new()
+		tag.text = "P%d" % (i + 1)
+		tag.add_theme_font_override("font", FONT)
+		tag.add_theme_font_size_override("font_size", 8)
+		tag.add_theme_color_override("font_color", [Color(0.4, 0.8, 1.0), Color(1.0, 0.55, 0.4), Color(0.6, 1.0, 0.5)][i % 3])
+		tag.add_theme_color_override("font_outline_color", Color.BLACK)
+		tag.add_theme_constant_override("outline_size", 3)
+		tag.position = Vector2(-6, -44)
+		p.add_child(tag)
+	var cam = RaidCamera.new()
+	cam.arena_rect = Rect2(0, -64, width * 16, height * 16 + 128)
+	add_child(cam)
