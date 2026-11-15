@@ -17,7 +17,8 @@
 ## Audit vs. the original tutorial (checked file by file)
 | File | Status |
 |---|---|
-| `scripts/coin.gd`, `scripts/slime.gd` | Unchanged Brackeys |
+| `scripts/slime.gd` | Unchanged Brackeys |
+| `scripts/coin.gd` | Brackeys + team fix: group-based manager lookup in generated story levels and one reward per pickup |
 | `scenes/player.tscn`, `slime.tscn`, `coin.tscn`, `platform.tscn`, `music.tscn`, `killzone.tscn` | Unchanged Brackeys |
 | `scenes/game.tscn` | Brackeys + 1 line (`leaves_body = false` on the pit killzone) |
 | `scripts/player.gd` | Brackeys base + team additions (nail attack, pogo, dash, knockback, bounce on bodies) |
