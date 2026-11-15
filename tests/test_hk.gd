@@ -11,10 +11,20 @@ var pl
 var slime
 var ok := {}
 var stage := 0
+var startup_frames := 0
 
 func _physics_process(_d):
+	# Wait for the manager's asynchronous startup before testing damage.
+	if gm == null or gm.player == null:
+		gm = get_first_node_in_group("game_manager")
+		startup_frames += 1
+		if startup_frames > 300:
+			print("RESULT: FAIL (game manager did not become ready)")
+			quit(1)
+		return false
 	f += 1
 	if f == 10:
+		root.get_node("Music").stop()
 		gm = get_first_node_in_group("game_manager")
 		pl = get_first_node_in_group("player")
 		slime = current_scene.get_node("Slime")

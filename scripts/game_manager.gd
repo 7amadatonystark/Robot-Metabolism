@@ -58,7 +58,7 @@ func set_checkpoint(pos: Vector2) -> void:
 
 # ---------------- DAMAGE ----------------
 func player_hit(from_pos: Vector2, hazard := false) -> void:
-	if dead or player == null or player.invuln > 0.0:
+	if dead or player == null or (player.invuln > 0.0 and not hazard):
 		return
 	masks -= 1
 	_update_hud()
@@ -98,6 +98,10 @@ func player_died(leave_body := true) -> void:
 	masks = MAX_MASKS
 	player.respawn(respawn_point)
 	_update_hud()
+	# Keep damage blocked until the teleported player's collider has synchronized.
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	await get_tree().process_frame
 	dead = false
 
 
