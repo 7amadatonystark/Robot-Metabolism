@@ -9,7 +9,19 @@ Assets: Brackeys Platformer Bundle (CC0): https://brackeysgames.itch.io/brackeys
 
 ## Run
 Open Godot 4.3+, click **Import**, select `project.godot`, then press **F5**.
-Controls: A/D or Left/Right arrows to move, Space to jump. Hold Space while landing on a body to bounce higher.
+### Controls (Hollow Knight style)
+| Key | Action |
+|---|---|
+| A/D or ←/→ | Move |
+| Space | Jump (hold = higher) |
+| J or X | Nail attack (hold W = up-slash; in the air hold S = **down-slash / POGO**) |
+| K, C or Shift | Dash (1 air dash) |
+
+### Systems
+- **5 masks** (health). Enemies knock you back; hazards send you to the last safe ground.
+- **Geo** (coins). Enemies drop geo.
+- **Benches** = checkpoint + full heal.
+- **Die → your body stays** with all your geo, as a **bounce pad**. Strike it to take your geo back; land on it to bounce high.
 
 ## How the mechanic works (files)
 | File | What it does |
@@ -19,7 +31,7 @@ Controls: A/D or Left/Right arrows to move, Space to jump. Hold Space while land
 | `scripts/player.gd` | Brackeys movement plus: bounce when landing on a body, die/respawn, sounds |
 | `scripts/killzone.gd` | Touch = die. **`leaves_body`** on = body stays (slimes, spikes); off = bottomless pit |
 | `scripts/checkpoint.gd` + `scenes/checkpoint.tscn` | Drag into a level. You respawn here after touching it |
-| `tests/test_bounce.gd` | Automatic test: `godot --headless -s tests/test_bounce.gd` should print PASS |
+| `tests/test_bounce.gd`, `tests/test_hk.gd` | Automatic tests (bounce; masks/death/geo/pogo/enemy kill): `godot --headless -s tests/<file>.gd` should print PASS |
 
 ## Level design rules (important!)
 1. Every level must have at least one ledge you can **only** reach by dying in the right spot and bouncing on your body.

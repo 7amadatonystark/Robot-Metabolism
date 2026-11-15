@@ -1,8 +1,7 @@
-# ORIGIN: Brackeys tutorial (human-written): Area2D that kills on touch.
-# MODIFIED BY TEAM (AI-assisted): calls game_manager instead of reloading; leaves_body option.
-# KILLZONE: touch it and you die.
-# leaves_body = true  -> your body stays here as a bounce pad (spikes, slimes...)
-# leaves_body = false -> no body (use this for bottomless pits)
+# ORIGIN: Brackeys tutorial (human-written): Area2D that hurts on touch.
+# MODIFIED BY TEAM (AI-assisted): now costs 1 MASK instead of reloading the level (Hollow Knight style).
+#   leaves_body = true  -> enemy (slime): knockback + lose a mask
+#   leaves_body = false -> hazard (spikes, pits): lose a mask + respawn at last safe ground
 extends Area2D
 
 @export var leaves_body := true
@@ -14,7 +13,7 @@ func _on_body_entered(body):
 	if body.is_in_group("player"):
 		var gm = get_tree().get_first_node_in_group("game_manager")
 		if gm:
-			gm.player_died(leaves_body)
+			gm.player_hit(global_position, not leaves_body)
 
 
 func _on_timer_timeout():

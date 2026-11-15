@@ -1,11 +1,15 @@
 # ORIGIN: NEW, written by team (AI-assisted). Not from the tutorial.
-# BODY PAD: what's left when you die. It's solid, and it BOUNCES you up.
+# BODY PAD: what's left when you die (like Hollow Knight's Shade).
+# It's solid, it BOUNCES you up, and it holds the GEO you dropped.
+# Hit it with your nail (or pogo on it) to take your geo back.
 # Created by game_manager.gd. You don't place these by hand.
 extends StaticBody2D
 
 var frames: SpriteFrames      # the player's sprites (set before adding to the scene)
 var flip := false
+var geo := 0                  # geo you lost when you died here
 var sprite: AnimatedSprite2D
+var t := 0.0
 
 
 func _ready() -> void:
@@ -35,7 +39,24 @@ func _ready() -> void:
 	create_tween().tween_property(self, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
-# Called by the player when they bounce on this body
+func _process(delta: float) -> void:
+	t += delta
+	if geo > 0:
+		queue_redraw()
+
+
+func _draw() -> void:
+	if geo > 0:   # glowing geo above the body until you reclaim it
+		var y := -16.0 + sin(t * 4.0) * 2.0
+		draw_circle(Vector2(0, y), 4.0, Color(1, 0.85, 0.2, 0.9))
+		draw_circle(Vector2(0, y), 7.0, Color(1, 0.85, 0.2, 0.25))
+
+
+func set_reclaimed() -> void:
+	queue_redraw()
+
+
+# Called by the player when they bounce on (or hit) this body
 func squish() -> void:
 	var tw := create_tween()
 	tw.tween_property(sprite, "scale", Vector2(1.3, 0.6), 0.06)

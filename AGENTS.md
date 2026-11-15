@@ -1,7 +1,14 @@
 # AGENTS.md: rules for every AI coding agent (Codex, Claude, etc.)
 
 You're working on **BOUNCE BACK**, a Godot 4.3 (GDScript) 2D platformer for the Haven Hack Club game jam (theme: "Bounce Back").
-**Core mechanic:** when the player dies, their body stays where they died as a bounce pad. The player respawns at the last checkpoint and uses old bodies to bounce higher.
+**Core mechanics (Hollow Knight style):**
+- **Nail attack:** J or X. Hold W to slash up; in the air, hold S to slash down.
+- **POGO:** a down-slash that hits an enemy, spikes or one of your bodies bounces you up (HK's signature move, and our "Bounce Back").
+- **Dash:** K, C or Shift (one air dash, refreshed on landing or after a pogo).
+- **Masks:** 5 health. Enemies = knockback, -1 mask. Hazards (spikes/pits) = -1 mask and respawn at the last safe ground.
+- **Geo:** coins. Enemies drop 2 geo.
+- **Benches:** checkpoint + full heal.
+- **THE TWIST (our Shade):** at 0 masks you die. Your body stays where you fell, holding all your geo, and it becomes a **bounce pad**. Strike your body to take the geo back; land on it to bounce much higher.
 
 ## Who are you working for?
 - If the human is **Ziko** → read and follow `agents/ZIKO.md`
@@ -14,8 +21,8 @@ You're working on **BOUNCE BACK**, a Godot 4.3 (GDScript) 2D platformer for the 
 3. Godot **4.3**, GDScript, renderer = GL Compatibility (must run in the browser on itch.io).
 4. **No AI-generated assets** (images, music, sounds). Use only `assets/` (Brackeys bundle, CC0) or CC0 packs from kenney.nl that the human downloads. Credit any new asset in `README.md`.
 5. Keep changes small. Prefer **new scripts and scenes** over editing existing ones.
-6. Useful hooks: the player is in group `"player"`, bodies are in group `"bounce_pad"`, and the game manager is in group `"game_manager"` (it has `deaths`, `respawn_point`, `player_died(leave_body)`, `set_checkpoint(pos)`).
-7. After changes, the game must still open and run (F5). If you can run Godot headless, run `godot --headless -s tests/test_bounce.gd` and it must print `RESULT: PASS`.
+6. Useful hooks: the player is in group `"player"` (`facing`, `invuln`, `last_safe`, `take_hit()`), bodies are in group `"bounce_pad"` (`geo`), and the game manager is in group `"game_manager"` (`masks`, `MAX_MASKS`, `score` = geo, `deaths`, `respawn_point`, `player_hit(from_pos, hazard)`, `player_died()`, `set_checkpoint(pos)`, `hit_enemy(enemy, by)`). Enemies = any node with a `Killzone` child (killzone `leaves_body = true`); hazards = a killzone with `leaves_body = false`. Enemy HP is stored as meta `"hp"` (default 2).
+7. After changes, the game must still open and run (F5). If you can run Godot headless, run `godot --headless -s tests/test_bounce.gd` and `godot --headless -s tests/test_hk.gd`. Both must print `RESULT: PASS`.
 
 ## Required: progress report at the end of EVERY response
 Finish every response with this block filled in:

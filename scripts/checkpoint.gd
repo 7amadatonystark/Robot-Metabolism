@@ -1,6 +1,6 @@
 # ORIGIN: NEW, written by team (AI-assisted). Not from the tutorial.
-# CHECKPOINT: walk through it and you respawn here from now on.
-# Use: add an Area2D with a CollisionShape2D to the level, attach this script.
+# BENCH (Hollow Knight style checkpoint): touch it = respawn here + masks fully healed.
+# Use: drag scenes/checkpoint.tscn into a level.
 extends Area2D
 
 var active := false
@@ -12,17 +12,19 @@ func _ready() -> void:
 
 
 func _on_body_entered(body) -> void:
-	if active or not body.is_in_group("player"):
+	if not body.is_in_group("player"):
 		return
-	active = true
 	var gm = get_tree().get_first_node_in_group("game_manager")
 	if gm:
-		gm.set_checkpoint(global_position)
+		gm.set_checkpoint(global_position)   # also heals every time you touch it
+	active = true
 	queue_redraw()
 
 
 func _draw() -> void:
-	# simple flag: pole + triangle (green when active)
-	draw_line(Vector2(0, 0), Vector2(0, -20), Color(0.9, 0.9, 0.9), 2.0)
-	var col := Color(0.3, 0.9, 0.4) if active else Color(0.8, 0.3, 0.3)
-	draw_colored_polygon(PackedVector2Array([Vector2(1, -20), Vector2(12, -16), Vector2(1, -12)]), col)
+	# simple bench: seat + legs (gold when active)
+	var col := Color(1.0, 0.85, 0.3) if active else Color(0.7, 0.7, 0.75)
+	draw_rect(Rect2(-10, -8, 20, 3), col)
+	draw_rect(Rect2(-10, -16, 3, 8), col)
+	draw_rect(Rect2(-9, -5, 2, 5), col)
+	draw_rect(Rect2(7, -5, 2, 5), col)
