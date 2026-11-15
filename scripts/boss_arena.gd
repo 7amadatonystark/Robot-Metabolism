@@ -5,6 +5,8 @@ extends Node2D
 const TILESET = preload("res://assets/world_tileset.tres")
 const SlimeKing = preload("res://scripts/slime_king.gd")
 const BENCH = preload("res://scenes/checkpoint.tscn")
+const PLAYER_SCENE = preload("res://scenes/player.tscn")
+const RaidCamera = preload("res://scripts/raid_camera.gd")
 
 const W := 40          # arena width in tiles
 const H := 14          # wall height in tiles
@@ -27,6 +29,41 @@ func _ready() -> void:
 	king.left_x = 2 * 16 + 30
 	king.right_x = (W - 2) * 16 - 30
 	add_child(king)
+	king.add_to_group("raid_focus")
+	_setup_raid()
+
+
+# BOSS RAID: replace the single player with 1-3 co-op players on one shared screen
+func _setup_raid() -> void:
+	var raid: Array = Engine.get_meta("raid", [])
+	if raid.is_empty():
+		return
+	var solo := get_node_or_null("Player")
+	var start := Vector2(56, -2)
+	if solo:
+		start = solo.position
+		solo.remove_from_group("player")
+		solo.queue_free()
+	for i in raid.size():
+		var p = PLAYER_SCENE.instantiate()
+		p.device = raid[i].device
+		p.char_id = raid[i].char
+		p.player_index = i
+		p.position = start + Vector2(i * 18, 0)
+		add_child(p)
+		# player color tag so you can tell who is who
+		var tag := Label.new()
+		tag.text = "P%d" % (i + 1)
+		tag.add_theme_font_override("font", load("res://assets/fonts/PixelOperator8-Bold.ttf"))
+		tag.add_theme_font_size_override("font_size", 8)
+		tag.add_theme_color_override("font_color", [Color(0.4, 0.8, 1.0), Color(1.0, 0.55, 0.4), Color(0.6, 1.0, 0.5)][i % 3])
+		tag.add_theme_color_override("font_outline_color", Color.BLACK)
+		tag.add_theme_constant_override("outline_size", 3)
+		tag.position = Vector2(-6, -44)
+		p.add_child(tag)
+	var cam = RaidCamera.new()
+	cam.arena_rect = Rect2(0, -(H + 2) * 16, W * 16, (H + 2) * 16 + 64)
+	add_child(cam)
 
 
 func _build_room() -> void:

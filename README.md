@@ -11,6 +11,11 @@ Assets: Brackeys Platformer Bundle (CC0): https://brackeysgames.itch.io/brackeys
 Open Godot 4.3+, click **Import**, select `project.godot`, then press **F5**.
 The game starts on **CHOOSE YOUR FIGHTER**: ←/→ to pick, ENTER to play, **B** to jump straight to the boss.
 
+### BOSS RAID: co-op for up to 3 (one shared screen)
+On the select screen press **R** (or **OPTIONS** on a PS4 pad). In the lobby, each controller presses **CROSS** to join (keyboard: ENTER), uses **LEFT/RIGHT** to pick a fighter, and presses **OPTIONS** (or ENTER) to fight.
+PS4 controls: stick/d-pad move · CROSS jump · SQUARE attack (hold down in the air = pogo) · CIRCLE or R1 dash.
+The camera zooms out to keep everyone and the boss on screen. When a player dies, their body becomes a trampoline for the team, and they bounce back at the bench 1 second later.
+
 ### Fighters
 | Fighter | Perk |
 |---|---|
@@ -44,11 +49,12 @@ The game starts on **CHOOSE YOUR FIGHTER**: ←/→ to pick, ENTER to play, **B*
 | `scenes/boss_arena.tscn` + `scripts/boss_arena.gd` | Boss room "The Throne", built from Brackeys tiles (`assets/world_tileset.tres`) |
 | `scripts/slime_king.gd` | **Slime Kingpin** boss: hops, slams (jump the shockwave), spawns slimes in phase 2. Only pogo hits hurt him |
 | `scenes/character_select.tscn` + `scripts/character_select.gd` | Home screen: CHOOSE YOUR FIGHTER (main scene) |
+| `scenes/raid_lobby.tscn`, `scripts/raid_lobby.gd`, `scripts/raid_camera.gd` | BOSS RAID co-op: join lobby + shared zooming camera |
 | `scripts/characters.gd` + `assets/characters/` | Fighter list, perks, animation mapping (rename fighters here) |
 | `scripts/boss_portrait.gd` + `assets/boss/` | Boss face next to the health bar that reacts (smug, angry, squashed, enraged, defeated). Drop hand-drawn PNGs in `assets/boss/` to replace the placeholder |
 | `scripts/ending.gd` | After the boss: MISSION PASSED, then all your old bodies stand up. "They all got back up." |
 | `scripts/vice_layer.gd` | GTA VI parody layer: sunset tint, SLIME ALERT stars, BOUNCED death screen, MISSION PASSED, meme title card. Game title constant lives here |
-| `tests/test_bounce.gd`, `tests/test_hk.gd` | Automatic tests: `godot --headless -s tests/<file>.gd` should print `RESULT: PASS` |
+| `tests/test_bounce.gd`, `tests/test_hk.gd`, `tests/test_raid.gd` | Automatic tests: `godot --headless -s tests/<file>.gd` should print `RESULT: PASS` |
 | `export_presets.cfg` | Web export preset (Project → Export → Web) |
 
 ## Level design numbers (tile = 16 px)

@@ -37,6 +37,14 @@ var power := 1                     # damage per hit (ZOOM = 2)
 var custom_char := false           # true = using a chosen fighter instead of the Brackeys knight
 var base_scale := Vector2.ONE
 var attack_anim_t := 0.0
+# ---- co-op (BOSS RAID) ----
+var device := -1                   # -1 = keyboard + any pad (single player); -2 = keyboard only (co-op); 0,1,2 = one PS4 controller
+var prefix := ""                   # input action prefix for this player ("p0_" ...)
+var char_id := ""                  # fighter for this player (empty = the one picked on the select screen)
+var player_index := 0
+var pmasks := 5                    # this player's masks (health)
+var pmax := 5
+var is_dead := false
 
 @onready var animated_sprite = $AnimatedSprite2D
 @onready var collision = $CollisionShape2D
@@ -57,8 +65,59 @@ func _ready():
 	sfx_slash = _make_sfx("res://assets/sounds/tap.wav")
 
 
+func _act(action: String) -> String:
+	return prefix + action
+
+
+# Joypad layout (PS4): stick / d-pad = move, CROSS = jump, SQUARE = attack, CIRCLE or R1 = dash
+const PAD := {
+	"move_left": [[JOY_AXIS_LEFT_X, -1.0], JOY_BUTTON_DPAD_LEFT],
+	"move_right": [[JOY_AXIS_LEFT_X, 1.0], JOY_BUTTON_DPAD_RIGHT],
+	"move_up": [[JOY_AXIS_LEFT_Y, -1.0], JOY_BUTTON_DPAD_UP],
+	"move_down": [[JOY_AXIS_LEFT_Y, 1.0], JOY_BUTTON_DPAD_DOWN],
+	"jump": [JOY_BUTTON_A],
+	"attack": [JOY_BUTTON_X],
+	"dash": [JOY_BUTTON_B, JOY_BUTTON_RIGHT_SHOULDER],
+}
+
+
+static func _add_pad_events(base: String, action: String, dev: int) -> void:
+	for e in PAD[base]:
+		var ev: InputEvent
+		if e is Array:
+			ev = InputEventJoypadMotion.new()
+			ev.axis = e[0]
+			ev.axis_value = e[1]
+		else:
+			ev = InputEventJoypadButton.new()
+			ev.button_index = e
+		ev.device = dev
+		InputMap.action_add_event(action, ev)
+
+
 # Adds the extra controls (so nobody has to edit Project Settings)
 func _setup_inputs() -> void:
+	if device == -2:
+		# co-op keyboard player: keyboard only, so the pads don't move them too
+		prefix = "kb_"
+		var kb := {"move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT], "move_up": [KEY_W, KEY_UP],
+			"move_down": [KEY_S, KEY_DOWN], "jump": [KEY_SPACE], "attack": [KEY_J, KEY_X], "dash": [KEY_K, KEY_C, KEY_SHIFT]}
+		for action in kb:
+			if not InputMap.has_action(prefix + action):
+				InputMap.add_action(prefix + action)
+				for k in kb[action]:
+					var ev := InputEventKey.new()
+					ev.physical_keycode = k
+					InputMap.action_add_event(prefix + action, ev)
+		return
+	if device >= 0:
+		# co-op: this player only listens to its own controller
+		prefix = "p%d_" % device
+		for action in PAD:
+			if not InputMap.has_action(prefix + action):
+				InputMap.add_action(prefix + action, 0.4)
+				_add_pad_events(action, prefix + action, device)
+		return
 	var keys := {
 		"attack": [KEY_J, KEY_X],
 		"dash": [KEY_K, KEY_C, KEY_SHIFT],
@@ -72,11 +131,19 @@ func _setup_inputs() -> void:
 				var ev := InputEventKey.new()
 				ev.physical_keycode = k
 				InputMap.action_add_event(action, ev)
+	# single player: any controller works too
+	if not InputMap.has_meta("pads_added"):
+		InputMap.set_meta("pads_added", true)
+		for action in PAD:
+			if InputMap.has_action(action):
+				_add_pad_events(action, action, -1)
 
 
 # Swap the Brackeys knight for the fighter picked on the select screen
 func _apply_character() -> void:
-	var c: Dictionary = Characters.get_selected()
+	var c: Dictionary = Characters.by_id(char_id) if char_id != "" else Characters.get_selected()
+	pmax = c.get("masks", 5)
+	pmasks = pmax
 	if c.is_empty():
 		base_scale = animated_sprite.scale
 		return
@@ -130,16 +197,16 @@ func _physics_process(delta):
 		return
 
 	# Handle jump.
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if Input.is_action_just_pressed(_act("jump")) and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 		sfx_jump.pitch_scale = 1.0
 		sfx_jump.play()
 	# Variable jump height: let go of jump early = shorter jump (like Hollow Knight)
-	if Input.is_action_just_released("jump") and velocity.y < -120.0:
+	if Input.is_action_just_released(_act("jump")) and velocity.y < -120.0:
 		velocity.y = -120.0
 
 	# Get the input direction: -1, 0, 1
-	var direction = Input.get_axis("move_left", "move_right")
+	var direction = Input.get_axis(_act("move_left"), _act("move_right"))
 
 	# Flip the Sprite
 	if direction > 0:
@@ -149,7 +216,7 @@ func _physics_process(delta):
 		animated_sprite.flip_h = true
 		facing = -1
 
-	if Input.is_action_just_pressed("dash") and dash_cd <= 0.0 and (is_on_floor() or can_air_dash):
+	if Input.is_action_just_pressed(_act("dash")) and dash_cd <= 0.0 and (is_on_floor() or can_air_dash):
 		dash_t = DASH_TIME
 		dash_cd = DASH_COOLDOWN
 		if not is_on_floor():
@@ -158,7 +225,7 @@ func _physics_process(delta):
 		sfx_jump.play()
 		return
 
-	if Input.is_action_just_pressed("attack") and attack_cd <= 0.0:
+	if Input.is_action_just_pressed(_act("attack")) and attack_cd <= 0.0:
 		_attack()
 
 	# Play animations
@@ -200,9 +267,9 @@ func _track_safe_ground(delta: float) -> void:
 func _attack() -> void:
 	attack_cd = ATTACK_COOLDOWN
 	var dir := Vector2(facing, 0)
-	if not is_on_floor() and Input.is_action_pressed("move_down"):
+	if not is_on_floor() and Input.is_action_pressed(_act("move_down")):
 		dir = Vector2.DOWN
-	elif Input.is_action_pressed("move_up"):
+	elif Input.is_action_pressed(_act("move_up")):
 		dir = Vector2.UP
 	slash_dir = dir
 	slash_t = 0.12
@@ -265,7 +332,7 @@ func _check_bounce() -> void:
 		var other = c.get_collider()
 		if other and other.is_in_group("bounce_pad") and c.get_normal().y < -0.5:
 			velocity.y = BOUNCE_VELOCITY
-			if Input.is_action_pressed("jump"):
+			if Input.is_action_pressed(_act("jump")):
 				velocity.y *= BOUNCE_BOOST
 			can_air_dash = true
 			other.squish()
@@ -311,6 +378,7 @@ func take_hit(from_pos: Vector2) -> void:
 
 
 func die() -> void:
+	is_dead = true
 	controllable = false
 	velocity = Vector2.ZERO
 	collision.set_deferred("disabled", true)
@@ -320,6 +388,7 @@ func die() -> void:
 
 
 func respawn(pos: Vector2) -> void:
+	is_dead = false
 	global_position = pos
 	velocity = Vector2.ZERO
 	dash_t = 0.0

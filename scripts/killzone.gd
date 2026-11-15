@@ -17,9 +17,9 @@ func _on_body_entered(body):
 		if gm == null:
 			return
 		if instant_kill:
-			gm.player_died(true)
+			gm.player_died(true, body)
 		else:
-			gm.player_hit(global_position, not leaves_body)
+			gm.player_hit(global_position, not leaves_body, body)
 
 
 func _on_timer_timeout():

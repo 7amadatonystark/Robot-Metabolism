@@ -98,6 +98,7 @@ func phase() -> int:
 func _physics_process(delta: float) -> void:
 	if dead or player == null:
 		return
+	player = _nearest_player()
 	state_t -= delta
 	var to_player: float = player.global_position.x - global_position.x
 
@@ -152,9 +153,10 @@ func _slam() -> void:
 	portrait.react("angry", 0.4)
 	if gm:
 		gm._shake(6.0)
-	# shockwave: hurts you if you're on the ground nearby (jump over it!)
-	if player.is_on_floor() and absf(player.global_position.x - global_position.x) < 90.0:
-		gm.player_hit(global_position)
+	# shockwave: hurts anyone on the ground nearby (jump over it!)
+	for p in get_tree().get_nodes_in_group("player"):
+		if not p.is_dead and p.is_on_floor() and absf(p.global_position.x - global_position.x) < 90.0:
+			gm.player_hit(global_position, false, p)
 	_dust()
 	# phase 2: spawn slimes
 	minions = minions.filter(func(m): return is_instance_valid(m))
@@ -163,6 +165,19 @@ func _slam() -> void:
 		m.position = position + Vector2(randf_range(-40, 40), 0)
 		get_parent().add_child(m)
 		minions.append(m)
+
+
+func _nearest_player():
+	var best = player
+	var bd := INF
+	for p in get_tree().get_nodes_in_group("player"):
+		if p.is_dead or p.is_queued_for_deletion():
+			continue
+		var d: float = absf(p.global_position.x - global_position.x)
+		if d < bd:
+			bd = d
+			best = p
+	return best
 
 
 # Called by game_manager when the nail hits the king

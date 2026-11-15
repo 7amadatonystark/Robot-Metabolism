@@ -10,6 +10,7 @@ Make the game feel finished and Hollow Knight-like: a moody title screen, a win 
 - **CHOOSE YOUR FIGHTER screen** (`scenes/character_select.tscn`) is the main scene. It already has the title, the 3 fighters, music and the B = boss shortcut.
 - GTA-parody layer (`vice_layer.gd`): BOUNCED death screen, MISSION PASSED, SLIME ALERT stars, sunset tint.
 - Boss fight + ending (`boss_arena.tscn`).
+- BOSS RAID co-op lobby (`raid_lobby.tscn`): controllers already work on the select screen and in the lobby. Your menus must also work with a PS4 pad (d-pad + CROSS).
 - In-game HUD (masks, GEO, deaths) in `game_manager.gd`.
 - Camera shake on hits and deaths, slow-mo on death, slash arc, squash-and-stretch on bounce.
 

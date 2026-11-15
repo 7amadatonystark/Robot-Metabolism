@@ -10,6 +10,7 @@ const GAME_TITLE := "VICE SLIME"
 const FIRST_LEVEL := "res://scenes/level_1.tscn"
 const FALLBACK_LEVEL := "res://scenes/game.tscn"
 const BOSS := "res://scenes/boss_arena.tscn"
+const RAID_LOBBY := "res://scenes/raid_lobby.tscn"
 const CARD := Vector2(300, 380)
 const PREVIEW_SCALE := 5.0
 
@@ -97,7 +98,7 @@ func _build() -> void:
 		card.add_child(_label(c.name, 24, Color(1, 0.85, 0.3), Vector2(0, 262), CARD.x))
 		card.add_child(_label(c.tagline, 12, Color(0.9, 0.9, 1), Vector2(10, 296), CARD.x - 20))
 		card.add_child(_label(c.perk, 12, Color(0.6, 1, 0.7), Vector2(10, 326), CARD.x - 20))
-	ui.add_child(_label("← →  pick      ENTER  play      B  boss fight", 16, Color.WHITE, Vector2(0, 560), 1152))
+	ui.add_child(_label("< >  pick      ENTER / CROSS  play      B  boss fight      R / OPTIONS  BOSS RAID (co-op)", 12, Color.WHITE, Vector2(0, 562), 1152))
 	ui.add_child(_label("Every death gets you higher.", 12, Color(1, 1, 1, 0.7), Vector2(0, 600), 1152))
 
 
@@ -131,7 +132,21 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if starting or not (event is InputEventKey and event.pressed and not event.echo):
+	if starting:
+		return
+	# PS4 controller on the menu
+	if event is InputEventJoypadButton and event.pressed:
+		match event.button_index:
+			JOY_BUTTON_DPAD_LEFT:
+				_select(wrapi(selected - 1, 0, cards.size()))
+			JOY_BUTTON_DPAD_RIGHT:
+				_select(wrapi(selected + 1, 0, cards.size()))
+			JOY_BUTTON_A:
+				_start(_first_level())
+			JOY_BUTTON_START:
+				get_tree().change_scene_to_file(RAID_LOBBY)
+		return
+	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
 	match event.physical_keycode:
 		KEY_LEFT, KEY_A:
@@ -142,6 +157,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			_start(_first_level())
 		KEY_B:
 			_start(BOSS)
+		KEY_R:
+			starting = true
+			get_tree().change_scene_to_file(RAID_LOBBY)
 
 
 func _on_card_input(event: InputEvent, i: int) -> void:
@@ -157,6 +175,7 @@ func _first_level() -> String:
 func _start(scene: String) -> void:
 	starting = true
 	Engine.set_meta("character", Characters.LIST[selected].id)
+	Engine.set_meta("raid", [])         # single player
 	sfx_pick.play()
 	var tw := create_tween()
 	tw.tween_property(cards[selected], "scale", Vector2.ONE * 1.15, 0.12)

@@ -15,11 +15,21 @@ const ENEMY_HP := 2
 
 var score = 0                 # = GEO (Brackeys coins)
 var deaths := 0
-var max_masks := MAX_MASKS    # BRAINS gets 6
-var masks := MAX_MASKS
 var respawn_point := Vector2.ZERO
 var dead := false
-var player: CharacterBody2D
+var player: CharacterBody2D   # player 1 (single player = the only one)
+var players: Array = []       # everyone (BOSS RAID co-op = up to 3)
+
+# masks live on each player; these read/write player 1 (single-player code and tests use them)
+var masks: int:
+	get:
+		return player.pmasks if player else MAX_MASKS
+	set(value):
+		if player:
+			player.pmasks = value
+var max_masks: int:
+	get:
+		return player.pmax if player else MAX_MASKS
 var bodies: Array = []
 var hud: Control
 var geo_label: Label
@@ -32,16 +42,19 @@ var heat := 0.0               # SLIME ALERT: goes up when you fight, cools down 
 
 func _ready():
 	add_to_group("game_manager")
-	var c: Dictionary = Characters.get_selected()
-	if not c.is_empty():
-		max_masks = c.masks
-		masks = max_masks
 	_build_hud()
 	add_child(ViceLayer.new())             # GTA VI parody layer (stars, BOUNCED, MISSION PASSED)
 	await get_tree().process_frame          # wait for the whole level to load
-	player = get_tree().get_first_node_in_group("player")
+	refresh_players()
 	if player:
 		respawn_point = player.global_position
+	_update_hud()
+
+
+func refresh_players() -> void:
+	players = get_tree().get_nodes_in_group("player").filter(func(p): return not p.is_queued_for_deletion())
+	players.sort_custom(func(a, b): return a.player_index < b.player_index)
+	player = players[0] if players.size() > 0 else null
 
 
 func _process(delta: float) -> void:
@@ -57,62 +70,71 @@ func add_point():
 # BENCH: respawn here + full heal
 func set_checkpoint(pos: Vector2) -> void:
 	respawn_point = pos
-	masks = max_masks
+	for p in players:
+		p.pmasks = p.pmax
 	_update_hud()
 	_toast("BENCH: RESTED")
 
 
 # ---------------- DAMAGE ----------------
-func player_hit(from_pos: Vector2, hazard := false) -> void:
-	if dead or player == null or player.invuln > 0.0:
+func player_hit(from_pos: Vector2, hazard := false, who = null) -> void:
+	if who == null:
+		who = player
+	if who == null or who.is_dead or who.invuln > 0.0:
 		return
-	masks -= 1
+	who.pmasks -= 1
 	_update_hud()
 	_shake(4.0)
-	if masks <= 0:
-		player_died(true)
+	if who.pmasks <= 0:
+		player_died(true, who)
 		return
-	player.take_hit(from_pos)
+	who.take_hit(from_pos)
 	if hazard:
 		# Hollow Knight hazard respawn: back to the last safe ground
-		player.controllable = false
+		who.controllable = false
 		await get_tree().create_timer(0.35).timeout
-		if not dead:
-			player.respawn(player.last_safe)
+		if is_instance_valid(who) and not who.is_dead:
+			who.respawn(who.last_safe)
 
 
-func player_died(leave_body := true) -> void:
-	if dead or player == null:
+func player_died(leave_body := true, who = null) -> void:
+	if who == null:
+		who = player
+	if who == null or who.is_dead:
 		return
 	dead = true
 	deaths += 1
-	var where := player.global_position
-	if player.global_position.y > player.last_safe.y + 60.0:
-		where = player.last_safe      # died falling into a pit: body appears at the edge
-	var facing_left: bool = player.animated_sprite.flip_h
+	var where: Vector2 = who.global_position
+	if who.global_position.y > who.last_safe.y + 60.0:
+		where = who.last_safe         # died falling into a pit: body appears at the edge
+	var facing_left: bool = who.animated_sprite.flip_h
 	var dropped: int = score
 	last_drop = dropped
 	score = 0
-	player.die()
+	who.die()
 	_update_hud()
 	_shake(8.0)
 	Engine.time_scale = 0.5
 	await get_tree().create_timer(0.3).timeout   # 0.6 s of slow-mo
 	Engine.time_scale = 1.0
 	if leave_body:
-		_spawn_body(where, facing_left, dropped)
-	masks = max_masks
-	player.respawn(respawn_point)
+		_spawn_body(where, facing_left, dropped, who)
+	if players.size() > 1:
+		await get_tree().create_timer(1.2).timeout   # co-op: short wait, then bounce back at the bench
+	who.pmasks = who.pmax
+	who.respawn(respawn_point + Vector2(who.player_index * 14, 0))
 	_update_hud()
-	dead = false
+	dead = players.any(func(p): return p.is_dead)
 
 
-func _spawn_body(pos: Vector2, facing_left: bool, geo: int) -> void:
+func _spawn_body(pos: Vector2, facing_left: bool, geo: int, who = null) -> void:
+	if who == null:
+		who = player
 	var b = BodyPad.new()
-	b.frames = player.animated_sprite.sprite_frames
+	b.frames = who.animated_sprite.sprite_frames
 	b.flip = facing_left
-	b.sprite_scale = player.base_scale
-	var ch: Dictionary = Characters.get_selected()
+	b.sprite_scale = who.base_scale
+	var ch: Dictionary = Characters.by_id(who.char_id) if who.char_id != "" else Characters.get_selected()
 	b.lying_anim = not ch.is_empty() and not ch.knockdown_rotate
 	b.geo = geo
 	b.global_position = pos
@@ -187,30 +209,44 @@ func _make_label(size: int, pos: Vector2) -> Label:
 	return l
 
 
+const P_COLORS := [Color(0.4, 0.8, 1.0), Color(1.0, 0.55, 0.4), Color(0.6, 1.0, 0.5)]
+
 func _draw_masks() -> void:
-	for i in max_masks:
-		var c := Vector2(10 + i * 22, 10)
-		var full := i < masks
-		hud.draw_circle(c, 9.0, Color.BLACK)
-		hud.draw_circle(c, 7.0, Color(0.95, 0.95, 1.0) if full else Color(0.25, 0.25, 0.3))
-		if full:
-			hud.draw_circle(c + Vector2(-3, -1), 1.6, Color.BLACK)
-			hud.draw_circle(c + Vector2(3, -1), 1.6, Color.BLACK)
+	var list: Array = players if players.size() > 0 else [null]
+	for row in list.size():
+		var p = list[row]
+		var y := 10.0 + row * 26.0
+		var x0 := 10.0
+		if list.size() > 1 and p:
+			var c: Dictionary = Characters.by_id(p.char_id)
+			hud.draw_string(FONT, Vector2(0, y + 5), "P%d %s" % [row + 1, c.get("name", "")], HORIZONTAL_ALIGNMENT_LEFT, -1, 8, P_COLORS[row % 3])
+			x0 = 92.0
+		var mx: int = p.pmax if p else MAX_MASKS
+		var cur: int = p.pmasks if p else MAX_MASKS
+		for i in mx:
+			var c := Vector2(x0 + i * 22, y)
+			var full: bool = i < cur and not (p != null and p.is_dead)
+			hud.draw_circle(c, 9.0, Color.BLACK)
+			hud.draw_circle(c, 7.0, Color(0.95, 0.95, 1.0) if full else Color(0.25, 0.25, 0.3))
+			if full:
+				hud.draw_circle(c + Vector2(-3, -1), 1.6, Color.BLACK)
+				hud.draw_circle(c + Vector2(3, -1), 1.6, Color.BLACK)
 
 
 func _update_hud() -> void:
 	if hud:
 		hud.queue_redraw()
+	var rows: int = maxi(players.size(), 1)
 	if geo_label:
+		geo_label.position.y = 34 + (rows - 1) * 26
 		geo_label.text = "GEO %d" % score
 	if death_label:
+		death_label.position.y = 56 + (rows - 1) * 26
 		death_label.text = "Deaths: %d" % deaths if deaths > 0 else ""
 
 
 func _shake(amount: float) -> void:
-	if player == null:
-		return
-	var cam: Camera2D = player.get_node_or_null("Camera2D")
+	var cam: Camera2D = get_viewport().get_camera_2d()
 	if cam == null:
 		return
 	var tw := cam.create_tween()

@@ -34,6 +34,13 @@ const LIST := [
 ]
 
 
+static func by_id(id: String) -> Dictionary:
+	for c in LIST:
+		if c.id == id:
+			return c
+	return {}
+
+
 static func get_selected() -> Dictionary:
 	var id: String = Engine.get_meta("character", "")
 	for c in LIST:
