@@ -7,7 +7,7 @@
 #  - title card + meme line when a level starts
 extends CanvasLayer
 
-const GAME_TITLE := "VICE SLIME"          # <- rename the game here
+const GAME_TITLE := "BEFORE IT DROPS"     # <- rename the game here
 const FONT = preload("res://assets/fonts/PixelOperator8-Bold.ttf")
 const MEMES := [
 	"GTA VI drops Nov 19. This dropped today.",

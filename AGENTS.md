@@ -1,6 +1,6 @@
 # AGENTS.md: rules for every AI coding agent (Codex, Claude, etc.)
 
-You're working on **VICE SLIME** (repo name: Bounce Back), a Godot 4.3 (GDScript) 2D platformer for the Haven Hack Club game jam (theme: "Bounce Back"), with a GTA VI parody/meme layer.
+You're working on **BEFORE IT DROPS** (set in the city of Vice Slime; repo name: Robot-Metabolism), a Godot 4.3 (GDScript) 2D platformer for the Haven Hack Club game jam (theme: "Bounce Back"), with a GTA VI parody/meme layer.
 
 **Story:** GTA VI drops today. Three friends (SPARK, ZOOM, BRAINS) fight through the line of rival buyers (meme hamsters) to the store, where THE HAMSTER GODFATHER, a scalper, is holding the LAST COPY.
 **Game flow:** `scenes/character_select.tscn` (main scene) → `scenes/story_level.tscn` built from the text maps in `scripts/levels.gd` (Level 1 The Docks → 2 Neon Streets → 3 The Roof; `Engine.get_meta("level_index")`) → `scenes/boss_arena.tscn` (Hamster Godfather, sunset store rooftop) → ending ("You got the LAST COPY").

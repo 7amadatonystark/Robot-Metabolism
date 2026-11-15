@@ -1,10 +1,10 @@
-# BOUNCE BACK: Pitch (60 seconds)
+# BEFORE IT DROPS: Pitch (60 seconds)
 
 **Hook (5 s)**
-"In every game, dying is failure. In ours, dying is how you climb."
+"GTA VI drops in 4 days. We didn't want to wait. So we made a game about getting it first."
 
 **What it is (15 s)**
-"Bounce Back is a Hollow Knight-style platformer. You strike down to pogo off enemies and spikes,
+"Before It Drops is a Hollow Knight-style platformer: three friends fight through the line of rival buyers to the last copy in Vice Slime. You strike down to pogo off enemies and spikes,
 and when you die, your body stays behind with all your geo, as a trampoline.
 You come back, take your geo back, and bounce off your own past mistakes to reach places you couldn't before."
 

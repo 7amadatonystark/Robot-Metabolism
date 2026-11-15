@@ -17,7 +17,7 @@ const LIST := [
 		"knockdown_rotate": true,
 	},
 	{
-		"id": "zoom", "name": "ZOOM", "tagline": "Talks trash. Hits like a truck.",
+		"id": "zoom", "name": "ZOOM", "tagline": "Hits like a truck.",
 		"perk": "BRUTE FORCE: double damage, smashes enemies back, breaks boss armor",
 		"special": "SHOULDER CHARGE: unstoppable dash",
 		"speed": 1.0, "masks": 5, "reach": 1.0, "power": 2,

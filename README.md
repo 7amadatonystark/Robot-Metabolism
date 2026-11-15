@@ -1,4 +1,6 @@
-# BOUNCE BACK: Haven Hack Club game jam (Godot 4.3+)
+# BEFORE IT DROPS: Haven Hack Club game jam (Godot 4.3+)
+
+*We got GTA VI before release day.* A parody platformer set in the city of Vice Slime.
 
 **Theme: Bounce Back.** A Hollow Knight-style platformer: strike down to **pogo** off enemies and spikes.
 When you die, your body stays behind holding your geo, as a **bounce pad**. Your failures help you bounce back higher.

@@ -6,7 +6,8 @@ extends Node2D
 const Characters = preload("res://scripts/characters.gd")
 const FONT = preload("res://assets/fonts/PixelOperator8-Bold.ttf")
 const MUSIC = preload("res://scenes/music.tscn")
-const GAME_TITLE := "VICE SLIME"
+const GAME_TITLE := "BEFORE IT DROPS"
+const SUBTITLE := "We got GTA VI before release day."
 const FIRST_LEVEL := "res://scenes/story_level.tscn"
 const FALLBACK_LEVEL := "res://scenes/game.tscn"
 const BOSS := "res://scenes/boss_arena.tscn"
@@ -74,7 +75,8 @@ func _build() -> void:
 	sky.size = Vector2(1152, 648)
 	ui.add_child(sky)
 	ui.add_child(_label(GAME_TITLE, 48, Color(1, 0.5, 0.8), Vector2(0, 24), 1152))
-	ui.add_child(_label("CHOOSE YOUR FIGHTER", 24, Color.WHITE, Vector2(0, 88), 1152))
+	ui.add_child(_label(SUBTITLE, 12, Color(1, 0.9, 0.5), Vector2(0, 76), 1152))
+	ui.add_child(_label("CHOOSE YOUR FIGHTER", 24, Color.WHITE, Vector2(0, 96), 1152))
 
 	var total := CARD.x * Characters.LIST.size() + 40.0 * (Characters.LIST.size() - 1)
 	var x0 := (1152.0 - total) / 2.0
