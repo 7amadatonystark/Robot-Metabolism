@@ -11,7 +11,7 @@ var _flash_tween: Tween
 func _ready() -> void:
 	layer = 80
 	# Later physics callbacks see the launch velocity assigned by player.gd.
-	process_priority = 100
+	process_physics_priority = 100
 	flash = ColorRect.new()
 	flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	flash.color = Color(1, 1, 1, 0)

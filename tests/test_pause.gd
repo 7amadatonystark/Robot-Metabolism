@@ -45,6 +45,9 @@ func _run() -> void:
 	key(KEY_ESCAPE)
 	check(paused and menu.overlay.visible, "Escape pauses gameplay")
 	check(menu.resume_button.has_focus(), "Resume receives keyboard/pad focus")
+	pad(JOY_BUTTON_DPAD_DOWN)
+	await process_frame
+	check(menu.restart_button.has_focus(), "d-pad moves button focus")
 	pad(JOY_BUTTON_B)
 	check(not paused and not menu.overlay.visible, "CIRCLE resumes")
 	pad(JOY_BUTTON_START)
@@ -52,16 +55,43 @@ func _run() -> void:
 	key(KEY_ESCAPE)
 	check(not paused, "Escape resumes")
 	menu.open_pause()
+	check(menu.get("controls_button") != null, "CONTROLS button exists")
+	if menu.get("controls_button") == null:
+		menu.close_pause()
+		print("RESULT: FAIL (controls missing)")
+		quit(1)
+		return
+	menu.controls_button.grab_focus()
+	pad(JOY_BUTTON_A)
+	await process_frame
+	check(menu.controls_card.visible and paused, "CROSS opens controls while paused")
+	pad(JOY_BUTTON_B)
+	check(not menu.controls_card.visible and menu.controls_button.has_focus() and paused, "CIRCLE returns to pause with focus")
+	menu.controls_button.pressed.emit()
+	key(KEY_ESCAPE)
+	check(not menu.controls_card.visible and paused, "Escape returns from controls")
+	menu.controls_button.pressed.emit()
+	pad(JOY_BUTTON_START)
+	check(not paused and not menu.overlay.visible, "OPTIONS resumes from controls")
+	menu.open_pause()
+	var gm := get_first_node_in_group("game_manager")
+	gm.player_died(false, gm.player)
+	check(Engine.time_scale == 0.5, "death slow-motion is active before restart")
 	var previous := current_scene.get_instance_id()
 	menu.restart_button.pressed.emit()
 	for i in 5:
 		await process_frame
 	check(not paused and current_scene.get_instance_id() != previous, "restart reloads and unpauses")
+	check(Engine.time_scale == 1.0, "restart clears outgoing death slow-motion")
+	gm = get_first_node_in_group("game_manager")
+	gm.player_died(false, gm.player)
 	menu.open_pause()
 	menu.fighter_button.pressed.emit()
 	for i in 5:
 		await process_frame
 	check(not paused and current_scene.scene_file_path.ends_with("character_select.tscn"), "fighter change unpauses")
+	check(Engine.time_scale == 1.0, "fighter change clears outgoing death slow-motion")
+	Engine.time_scale = 1.0
 	Engine.set_meta("raid", [{"device": -2, "char": "spark"}, {"device": 0, "char": "zoom"}])
 	await scene("res://scenes/boss_arena.tscn")
 	pad(JOY_BUTTON_START)

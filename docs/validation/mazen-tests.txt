@@ -1,0 +1,24 @@
+bounce: exit=0, ['RESULT: PASS'], script_errors=0
+hk: exit=0, ['RESULT: PASS'], script_errors=0
+raid: exit=0, ['RESULT: PASS'], script_errors=0
+hazard_respawn: exit=0, ['RESULT: PASS (hazard respawn)'], script_errors=0
+stats: exit=0, ['RESULT: PASS (stats)'], script_errors=0
+parry: exit=0, ['RESULT: PASS'], script_errors=0
+intro: exit=0, ['RESULT: PASS (intro)'], script_errors=0
+pause: exit=0, ['RESULT: PASS (pause)'], script_errors=0
+feel: exit=0, ['RESULT: PASS (feel)'], script_errors=0
+
+Commands: godot --headless --fixed-fps 60 -s tests/test_<name>.gd
+Engine: 4.6.3.stable.official.7d41c59c4
+Editor import: godot --headless --editor --import --quit — exit 0, no script errors.
+Main smoke: godot --headless --fixed-fps 60 --quit-after 120 — exit 0, no script errors;
+existing shutdown resource-use diagnostic remains.
+
+Nonzero ERROR diagnostics are not test failures hidden by exit codes:
+- Story startup in intro test: existing coin %GameManager node lookups fail (2 nodes
+  in this test's sampled frames; a full story startup can show more).
+- Existing vice_layer anchoring warnings and shutdown resource-use diagnostics.
+- Baseline uncapped or max-fps-only physics tests can fail due to initialization timing;
+  fixed-fps 60 provides one physics tick per rendered frame and runs all checks to PASS.
+
+No new SCRIPT ERROR in final suite. Physical pad, Godot 4.3 and Web export not run.
