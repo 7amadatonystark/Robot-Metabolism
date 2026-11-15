@@ -2,6 +2,26 @@
 
 Branch: `ziko/levels`. Based on main `727c1cc`. Engine: official Godot 4.3 stable.
 
+## Task 2 update
+
+One optional high secret per level is now placed above a paired one-way ledge at y48, with its coin at y24: Docks x648, Neon Streets x904, Roof x72. Each is reached with a boosted body bounce. Tests exercise the coin contact, GEO reward, and return to normal terrain without another death for all fighters. A measured ordinary jump from nearby normal terrain cannot reach the pickup. The Roof secret lies 216 pixels left of the upper arena, beyond the single jump/dash approach used in these checks; this is a local access check, not a global movement proof.
+
+`coin.gd` is **not** in AGENTS.md's protected list. It now finds the manager by the existing group rather than the owner-dependent unique-name lookup. It also guards against repeated reward while the pickup animation runs; the isolated collision test re-enters the coin and checks one GEO and eventual removal. This resolves the previously reported story coin errors without changing the protected loader. CREDITS.md records the modification.
+
+The current suite is 23 invocations: the original 3 tests, layout, isolated coin pickup, 9 normal routes, and 9 secret routes. All passed on Godot 4.3 without GDScript errors before further enemy placement. The original 13-run observations below are retained as Task 1 history, superseded by this update where they mention the coin bug.
+
+Additional commands:
+
+```bash
+godot --headless --fixed-fps 60 -s tests/test_story_coin.gd
+for level in 1 2 3; do
+  for fighter in spark zoom brains; do
+    godot --headless --fixed-fps 60 -s tests/test_story_secrets.gd -- "$level" "$fighter"
+  done
+done
+```
+
+
 ## Changes
 
 - Docks: move the scalper from column 18, over the pit, to supported column 22. Rivals move horizontally and cannot fall onto a floor.
@@ -40,7 +60,7 @@ The intended gate count is not a proof of the global minimum deaths: enemy pogo 
 
 ## Needs Abdullah — protected code
 
-1. **Story coins fail.** `story_level.gd` adds each coin before setting `owner`; the coin's `@onready` `%GameManager` lookup therefore runs without the level owner. Godot logs `Node not found: "%GameManager"`; collecting the coin logs `Attempt to call function 'add_point' in base 'null instance'`. Repro: collect a story coin, or run Level 2's route test. Coin rewards remain broken despite the traversal passing.
+1. **Story coins — RESOLVED in Task 2.** The following describes the original failure: `story_level.gd` adds each coin before setting `owner`; the coin's `@onready` `%GameManager` lookup therefore runs without the level owner. Godot logs `Node not found: "%GameManager"`; collecting the coin logs `Attempt to call function 'add_point' in base 'null instance'`. Repro: collect a story coin, or run Level 2's route test. The original traversal passed with broken rewards; the Task 2 collision and secret tests now verify working rewards.
 2. **Spike falls count twice.** In the Roof route, first contact kills at approximately `(79.83, 175.93)` and frame 26; a second death occurs at the respawn `(56, 176)` on frame 62 without further movement. The second gate does the same at the bench. Root cause investigation needs the deferred collision disable/enable and instant-kill contact around respawn in `player.gd`, `game_manager.gd`, and `killzone.gd`; those files were not changed. Repro: run the Roof route and inspect the `DEATH` lines.
 3. **Repeated pit falls can escape recovery.** Walk off the first Docks pit and keep returning to it immediately after hazard respawn. `killzone.gd` invokes `player_hit` on entry only; `player_hit` ignores an invulnerable player. If the player re-enters during recovery invulnerability, the pit does not catch them again. A focused input-only reproduction ended at `(301.37, 16424.24)`, alive with 3 masks, below the map.
 4. Existing anchor warnings and resource-leak messages appear in baseline tests. The installed Godot 4.6.3 also failed the raid baseline; verification here uses the required 4.3 version.
@@ -49,4 +69,4 @@ The intended gate count is not a proof of the global minimum deaths: enemy pogo 
 
 F5, choose each fighter, and play Docks → Neon Streets → Roof → store. Check sign readability, step visibility, the death overlay, enemy spacing, jump timing, camera bounds, and rooftop combat. For body climbs, land on the body while holding jump, then steer toward the ledge. If the door was entered during the fight, step away and re-enter after defeating the Line Cutter.
 
-Task 1's nine scripted routes are verified, with the protected bugs above still open. Task 2 (secrets), Task 3 (extra guards), and the remaining Task 4 rival placements are not included. This report covers Task 5's observed deaths and unfair behavior; it does not certify minimum deaths. Do not merge or submit the full game as bug-free based on these tests alone.
+Task 1's nine scripted routes are verified, with the protected bugs above still open. Task 2 (secrets) is now included. Task 3 (extra guards) and the remaining Task 4 rival placements are not included in this commit. This report covers Task 5's observed deaths and unfair behavior; it does not certify minimum deaths. Do not merge or submit the full game as bug-free based on these tests alone.

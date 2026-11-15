@@ -67,11 +67,11 @@ func jump(x: float, y: float, limit := 180, dash := false):
 	print("JUMP FAIL ", Vector2(x,y), " at ",pl.position," vy ",pl.velocity.y," deaths ",gm.deaths)
 	Input.action_release("jump")
 	return false
-func bounce_to(x: float, y: float, limit := 240):
+func bounce_to(x: float, y: float, limit := 240, pad = null):
 	if gm.bodies.is_empty():
 		print("BOUNCE FAIL: no body")
 		return false
-	var bx = gm.bodies[-1].position.x
+	var bx = pad.position.x if is_instance_valid(pad) else gm.bodies[-1].position.x
 	await walk(bx - 24)
 	Input.action_release("jump")
 	await tick(2)
