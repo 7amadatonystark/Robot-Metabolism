@@ -13,3 +13,4 @@ func _exit_tree() -> void:
 		return
 	_saved = true
 	stats.total_deaths += int(game_manager.deaths)
+	stats.total_geo += int(game_manager.score)
