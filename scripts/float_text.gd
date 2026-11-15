@@ -5,6 +5,7 @@ var text := ""
 var color := Color.WHITE
 var size := 22
 var life := 1.0
+const FONT = preload("res://fonts/Bungee-Regular.ttf")
 
 
 func _process(delta: float) -> void:
@@ -17,7 +18,7 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	var font := ThemeDB.fallback_font
+	var font: Font = FONT
 	var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	var p := Vector2(-w * 0.5, 0)
 	draw_string_outline(font, p, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 6, Color.BLACK)

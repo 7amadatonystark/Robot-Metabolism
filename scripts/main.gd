@@ -6,8 +6,8 @@ const GAME_TITLE := "BOUNCEBACK BOT"
 const TAGLINE := "Get scrapped. Bounce back bigger."
 const BG_COLOR := Color("14161f")
 const GRID_COLOR := Color(1, 1, 1, 0.045)
-const PLAYER_CORE := Color("eceff1")
-const ENEMY_CORE := Color("8d99ae")
+const PLAYER_CORE := Color("e0f7fa")
+const ENEMY_CORE := Color("9aa5b8")
 var ARENA_HALF := 1600.0
 # ===========================================================================================
 
@@ -18,6 +18,10 @@ const ScrapScript = preload("res://scripts/scrap.gd")
 const BulletScript = preload("res://scripts/bullet.gd")
 const FloatTextScript = preload("res://scripts/float_text.gd")
 const Mut = preload("res://scripts/mutations.gd")
+const FLOOR_TEX = preload("res://art/floor.png")
+const VIGNETTE_TEX = preload("res://art/vignette.png")
+const LOGO_TEX = preload("res://art/logo.png")
+const TITLE_FONT = preload("res://fonts/Bungee-Regular.ttf")
 
 enum State { TITLE, PLAY, CHOOSE, DEAD }
 var state := State.TITLE
@@ -60,6 +64,7 @@ var autopilot := false     # run with: godot -- --bot   (used for testing)
 var ui_stats: Label
 var ui_title: Label
 var ui_body: Label
+var ui_logo: TextureRect
 
 var sfx := {}
 var sfx_players: Array = []
@@ -70,6 +75,7 @@ var music: AudioStreamPlayer
 func _ready() -> void:
 	randomize()
 	RenderingServer.set_default_clear_color(BG_COLOR)
+	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED   # so the floor tile repeats
 	autopilot = "--bot" in OS.get_cmdline_user_args()
 	world = Node2D.new()
 	add_child(world)
@@ -115,7 +121,7 @@ func _reset_world() -> void:
 	player.core_color = PLAYER_CORE
 	world.add_child(player)
 	cam.position = Vector2.ZERO
-	for i in 60:
+	for i in 90:
 		_spawn_scrap(_random_arena_pos(), randi() % DB.COUNT, Vector2.ZERO, 0.0)
 	for i in 8:
 		var m := randi_range(1, 3) if i < 6 else randi_range(7, 10)
@@ -126,13 +132,15 @@ func _start() -> void:
 	state = State.PLAY
 	ui_title.text = ""
 	ui_body.text = ""
+	ui_logo.visible = false
 	card_box.visible = false
 	play_sfx("start")
 
 
 func _show_title() -> void:
 	state = State.TITLE
-	ui_title.text = GAME_TITLE
+	ui_logo.visible = true
+	ui_title.text = ""
 	ui_body.text = TAGLINE + "\n\nWASD / Arrows / hold Mouse to move\nTouch loose parts to bolt them on     SPACE / Right-click = DASH\nGet hit? Your parts scatter. Grab them back fast = BOUNCE BACK!\nGREEN ring = eat it     RED ring = run!\n\nWHEEL +speed   CLAW +bite   MAGNET +pull   CANNON +gun\nGrow to pick MUTATIONS. Reach size %d to become MEGABOT!\n\nPress ENTER or click to start" % Mut.MEGABOT_SIZE
 
 
@@ -202,6 +210,9 @@ func _process(delta: float) -> void:
 			_pick_mutation(0)
 	elif state == State.DEAD:
 		dead_time += delta
+	var shots := OS.get_cmdline_user_args()
+	if "--shots" in shots and Engine.get_process_frames() in [90, 1500, 2400, 3300]:
+		get_viewport().get_texture().get_image().save_png("/tmp/shot_%d.png" % Engine.get_process_frames())
 		if autopilot and dead_time > 1.0:
 			print("BOT DIED t=%d best=%d eaten=%d" % [elapsed, best_mass, eaten])
 			_reset_world()
@@ -406,7 +417,7 @@ func _spawning() -> void:
 		var pos: Vector2 = player.position + Vector2.from_angle(randf() * TAU) * randf_range(750.0, 1150.0)
 		_spawn_enemy(pos.clamp(Vector2.ONE * -ARENA_HALF, Vector2.ONE * ARENA_HALF), clampi(m, 1, 80))
 	scrap_t -= get_process_delta_time()
-	if scraps.size() < 50 and scrap_t <= 0.0:
+	if scraps.size() < 80 and scrap_t <= 0.0:
 		scrap_t = 0.35
 		_spawn_scrap(_random_arena_pos(), randi() % DB.COUNT, Vector2.ZERO, 0.0)
 
@@ -641,9 +652,20 @@ func _make_label(size: int) -> Label:
 
 
 func _build_ui() -> void:
+	var vig_layer := CanvasLayer.new()
+	vig_layer.layer = 0
+	add_child(vig_layer)
+	var vig := TextureRect.new()
+	vig.texture = VIGNETTE_TEX
+	vig.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	vig.stretch_mode = TextureRect.STRETCH_SCALE
+	vig.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vig_layer.add_child(vig)
+	vig.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var layer := CanvasLayer.new()
+	layer.layer = 1
 	add_child(layer)
-	ui_stats = _make_label(22)
+	ui_stats = _make_label(19)
 	ui_stats.position = Vector2(18, 12)
 	layer.add_child(ui_stats)
 	var center := CenterContainer.new()
@@ -652,7 +674,14 @@ func _build_ui() -> void:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var box := VBoxContainer.new()
 	center.add_child(box)
-	ui_title = _make_label(72)
+	ui_logo = TextureRect.new()
+	ui_logo.texture = LOGO_TEX
+	ui_logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ui_logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	ui_logo.custom_minimum_size = Vector2(700, 230)
+	box.add_child(ui_logo)
+	ui_title = _make_label(64)
+	ui_title.label_settings.font = TITLE_FONT
 	ui_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	ui_title.label_settings.font_color = Color("00e5ff")
 	box.add_child(ui_title)
@@ -693,12 +722,9 @@ func _update_ui() -> void:
 
 func _draw() -> void:
 	var a := ARENA_HALF
-	var step := 80.0
-	var x := -a
-	while x <= a:
-		draw_line(Vector2(x, -a), Vector2(x, a), GRID_COLOR, 2.0)
-		draw_line(Vector2(-a, x), Vector2(a, x), GRID_COLOR, 2.0)
-		x += step
+	draw_texture_rect(FLOOR_TEX, Rect2(-a, -a, a * 2.0, a * 2.0), true)
+	# glowing bouncy wall
+	draw_rect(Rect2(-a - 14, -a - 14, a * 2.0 + 28, a * 2.0 + 28), Color(0, 0.9, 1, 0.12), false, 28.0)
 	draw_rect(Rect2(-a, -a, a * 2.0, a * 2.0), Color("00e5ff"), false, 6.0)
 
 
