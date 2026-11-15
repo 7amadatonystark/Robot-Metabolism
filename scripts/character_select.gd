@@ -9,6 +9,7 @@ const MUSIC = preload("res://scenes/music.tscn")
 const GAME_TITLE := "BEFORE IT DROPS"
 const SUBTITLE := "We got GTA VI before release day."
 const FIRST_LEVEL := "res://scenes/story_level.tscn"
+const INTRO := "res://scenes/intro.tscn"          # optional, made by Mazen
 const FALLBACK_LEVEL := "res://scenes/game.tscn"
 const BOSS := "res://scenes/boss_arena.tscn"
 const RAID_LOBBY := "res://scenes/raid_lobby.tscn"
@@ -172,6 +173,8 @@ func _on_card_input(event: InputEvent, i: int) -> void:
 
 
 func _first_level() -> String:
+	if ResourceLoader.exists(INTRO):
+		return INTRO          # Mazen's story intro (it then loads the first story level)
 	return FIRST_LEVEL if ResourceLoader.exists(FIRST_LEVEL) else FALLBACK_LEVEL
 
 

@@ -18,6 +18,9 @@ You're working on **BEFORE IT DROPS** (set in the city of Vice Slime; repo name:
 - **Death spikes:** a killzone with `instant_kill = true` = instant death; your body lands exactly there (for "die on purpose" puzzles).
 - **THE TWIST (our Shade):** at 0 masks you die. Your body stays where you fell, holding all your geo, and it becomes a **bounce pad**. Strike your body to take the geo back; land on it to bounce much higher.
 
+## Deadline
+PRs open by **2:45 PM** · feature freeze **3:00 PM** · submission **5:00 PM**. Small and working beats big and broken.
+
 ## Who are you working for?
 - If the human is **Ziko** → read and follow `agents/ZIKO.md`
 - If the human is **Mazen** → read and follow `agents/MAZEN.md`
@@ -27,7 +30,7 @@ You're working on **BEFORE IT DROPS** (set in the city of Vice Slime; repo name:
 1. **Protected files: DO NOT EDIT** `scripts/player.gd`, `scripts/game_manager.gd`, `scripts/body_pad.gd`, `scripts/killzone.gd`, `scripts/characters.gd`, `scripts/character_select.gd`, `scripts/slime_king.gd`, `scripts/boss_portrait.gd`, `scripts/vice_layer.gd`, `scripts/ending.gd`, `scripts/raid_lobby.gd`, `scripts/raid_camera.gd`, `scripts/boss_arena.gd`, `scripts/story_level.gd`, `scripts/guard.gd`, `scripts/projectile.gd`, `scripts/city_backdrop.gd`. (`scripts/levels.gd`, the level maps, CAN be edited by Ziko.) Abdullah owns them. If you need a change there, say so in your report instead.
 2. Work on **your own branch** (`ziko/...` or `mazen/...`). Never push to `main`. Open a pull request when a task works.
 3. Godot **4.3**, GDScript, renderer = GL Compatibility (must run in the browser on itch.io).
-4. **Don't generate any new assets yourself** (images, music, sounds). Use what's in `assets/` (Brackeys bundle, the team's fighter and boss sheets) or CC0 packs from kenney.nl that the human downloads. Credit any new asset in `CREDITS.md`.
+4. **Don't generate any new assets yourself** (images, music, sounds), and don't add famous meme characters or real people's photos. Use what's in `assets/` (Brackeys bundle, the team's fighter and boss sheets) or CC0 packs from kenney.nl that the human downloads. Credit any new asset in `CREDITS.md`.
 5. Keep changes small. Prefer **new scripts and scenes** over editing existing ones.
 6. Useful hooks: the player is in group `"player"` (`facing`, `invuln`, `last_safe`, `take_hit()`, `custom_char`, `speed_mult`, `reach`, `power`), bodies are in group `"bounce_pad"` (`geo`), and the game manager is in group `"game_manager"` (`masks`, `max_masks`, `heat` (SLIME ALERT), `score` = geo, `soul`, `deaths`, `respawn_point`, `player_hit(from_pos, hazard)`, `player_died()`, `set_checkpoint(pos)`, `hit_enemy(enemy, by)`). Enemies = any node with a `Killzone` child (killzone `leaves_body = true`); hazards = a killzone with `leaves_body = false`; death spikes = a killzone with `instant_kill = true`. Enemy HP is stored as meta `"hp"` (default 2).
 7. After changes, the game must still open and run (F5). If you can run Godot headless, run `godot --headless -s tests/test_bounce.gd`, `tests/test_hk.gd` and `tests/test_raid.gd`. All must print `RESULT: PASS`.

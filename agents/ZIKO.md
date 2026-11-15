@@ -1,22 +1,40 @@
-# Agent brief: ZIKO (Level Designer)
+# Agent brief: ZIKO (Levels)
 
 You're Ziko's coding agent. Ziko owns **the levels**: where the fun and the theme happen.
 Read `/AGENTS.md` first (hard rules + progress report). Branch name: `ziko/levels`.
 
-## Your goal
-The story levels are built from **text maps** in `scripts/levels.gd` (1 character = 1 tile). Edit the maps; no scene editing needed. Press F5, pick a fighter, and play.
-Legend: `#` ground · `=` one-way platform · `X` death spikes · `P` start · `B` bench · `C` coin · `g`/`h`/`f` guards (lollipop / smug / flame) · `E` exit · `1`-`9` signs (text in `"signs"`) · `.` empty (below the map = pit).
+## Deadline
+**Pull requests must be open by 2:45 PM.** Feature freeze is at 3:00 PM and submission is at 5:00 PM.
+
+## How levels work
+The story levels are **text maps** in `scripts/levels.gd` (1 character = 1 tile, 16 px). Edit the maps; no scene editing needed. Press F5, pick a fighter, play. (Quick test: in `story_level.gd` the level number comes from `Engine.get_meta("level_index")`.)
+Each level also has `title`, `line` (story text), `signs`, `exit` (door label), `tiles` (grass / brick / stone / sand) and `backdrop` (docks / streets / roof / store).
+
+Legend:
+| Char | Thing |
+|---|---|
+| `#` | ground |
+| `=` | one-way platform (put them in pairs) |
+| `X` | death spikes (instant death, your body stays) |
+| `P` | start · `B` bench · `C` coin · `E` exit |
+| `g` / `h` / `f` | hamster guards: lollipop (2 HP) / smug (3 HP, fast) / flame (5 HP, hops) |
+| `1`-`9` | sign (text in `"signs"`) |
+| `.` | empty (falling below the map = pit) |
+
+**Coming soon (Abdullah is adding these now):** original "rival buyer" enemies with the letters `s` scalper, `t` streamer, `o` preorder guy, and the mini-boss `L` line cutter in front of the store door. Ignore these letters until they're on `main`.
 
 ## Numbers (tile = 16 px)
-- Normal jump ≈ 2.9 tiles up, ≈ 5 tiles across. Pogo ≈ 2.9 tiles up from the hit point.
-- Body bounce ≈ 5.6 tiles (hold jump ≈ 8). Dash ≈ 3.3 tiles across (1 air dash).
-- Walls of 3 tiles need a pogo. Walls of 5 tiles need a body bounce (put `X` spikes right in front).
+- Normal jump ≈ 2.9 tiles up and ≈ 5 tiles across. Pogo ≈ 2.9 tiles up from the hit point.
+- Body bounce ≈ 5.6 tiles up (hold jump ≈ 8). Dash ≈ 3.3 tiles across (1 air dash).
+- A 3-tile wall needs a pogo. A 5-tile wall needs a body bounce (put `X` right in front of it).
+- All fighters run at the same speed. SPARK reaches further, ZOOM hits twice as hard, BRAINS has 6 masks.
 
 ## Tasks (in order; report after each)
-1. **Playtest Levels 1-3** with every fighter. Each must be beatable. Fix anything impossible or boring by editing the maps.
-2. **Add 1-2 secrets per level:** coins on high ledges reachable only by a body bounce or a pogo chain.
-3. **Balance guards:** more guards in Level 2, a flame guard on the Level 3 ledge.
-4. **Report** the minimum deaths per level and anything unfair.
+1. **Playtest Levels 1-3** with SPARK, ZOOM and BRAINS. Each must be beatable. Fix anything impossible or boring by editing the maps.
+2. **Secrets:** 1-2 per level, coins on high ledges reachable only by a body bounce or a pogo chain.
+3. **Guards:** more in Level 2, a flame guard on the Level 3 ledge.
+4. **When the rival buyers are on `main`:** add a few `s` / `t` / `o` to each level and an `L` right before the Level 3 exit.
+5. **Report** the minimum deaths per level and anything unfair.
 
 ## Done when
-All 3 levels can be beaten start to finish, each goal loads the next level, and the Level 3 exit leads to the boss (already wired).
+All 3 levels can be beaten with every fighter, and the Level 3 exit leads to the boss (already wired).

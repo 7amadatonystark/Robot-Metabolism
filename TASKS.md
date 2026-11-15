@@ -1,25 +1,31 @@
-# TASKS
+# TASKS: BEFORE IT DROPS
+
+## Schedule (Sunday)
+| Time | What |
+|---|---|
+| now → 2:45 PM | Everyone builds; Ziko + Mazen open PRs by **2:45** |
+| **3:00 PM** | **Feature freeze**: merge, rebuild the web version, record the trailer |
+| 3:00 → 4:30 | Bug fixes only, upload to itch.io, practice the pitch (play the raid live with 3 PS4 pads) |
+| **4:30 PM** | Submit (30 min buffer before the 5:00 deadline) |
 
 ## How to start an agent
-- Ziko → `agents/ZIKO.md` (levels)
-- Mazen → `agents/MAZEN.md` (menus, UI, game feel)
+- Ziko → `agents/ZIKO.md` (levels) · Mazen → `agents/MAZEN.md` (intro, pause, game feel)
 - Shared rules + required progress report → `AGENTS.md`
-
-First message to Codex: **"I'm Ziko. Read AGENTS.md and agents/ZIKO.md, then do Task 1."** (or "I'm Mazen ... agents/MAZEN.md ...")
-After each task, the agent ends with a **PROGRESS REPORT**. Paste it in the team chat, then open a pull request.
+- First message to Codex: **"I'm Ziko. Pull main. Read AGENTS.md and agents/ZIKO.md, then do Task 1."** (or Mazen)
+- After each task: paste the PROGRESS REPORT in the team chat and open a pull request.
 
 ## Abdullah (with Claude)
-- [x] Core mechanic: bodies become bounce pads holding your geo
-- [x] Hollow Knight systems: nail attack, pogo, dash, masks, benches, hazard respawn, death spikes
-- [x] Automatic tests (`tests/test_bounce.gd`, `tests/test_hk.gd`)
-- [x] Web export preset + first web build
-- [x] Pitch draft (`PITCH.md`)
-- [ ] Merge Ziko's and Mazen's pull requests and playtest
-- [ ] Rebuild the web zip + demo video after merging, upload to itch.io
+- [x] Core: bodies = bounce pads holding your geo · Hollow Knight moves (nail, pogo, dash, masks, benches, SOUL)
+- [x] 3 fighters + select screen · specials · power shot
+- [x] Story mode: 3 levels (text maps) + hamster guards + Hamster Godfather boss + ending
+- [x] BOSS RAID local co-op for 3 (PS4 pads), shared camera
+- [x] City backdrop, GTA-parody layer, game renamed BEFORE IT DROPS
+- [x] Tests: `tests/test_bounce.gd`, `tests/test_hk.gd`, `tests/test_raid.gd`
+- [ ] Rival buyers (scalper, streamer, preorder guy) + Line Cutter mini-boss
+- [ ] Merge PRs, playtest with real PS4 pads
+- [ ] Web build + trailer → itch.io
+- [ ] Fill in the "Source/artist: TODO" lines in `CREDITS.md`
 - [ ] Practice the pitch twice
 
-## Assets (no AI): use only these
-- Brackeys Platformer Bundle (already in `assets/`, CC0)
-- kenney.nl (CC0): Pixel Platformer (spikes!), Impact Sounds, Interface Sounds, Music Jingles
-- sfxr.me / jsfxr: make your own retro sound effects
-- opengameart.org / freesound.org: check each license and credit CC-BY files in `CREDITS.md`
+## Assets
+Use what's in `assets/`, or CC0 packs from kenney.nl that a human downloads. Credit everything in `CREDITS.md`. Don't use famous meme characters or real people's photos (copyright / likeness).
