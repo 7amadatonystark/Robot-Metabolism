@@ -1,10 +1,13 @@
 # ORIGIN: NEW, demo-recording script (AI-assisted). Plays the whole game automatically for the trailer:
 # title -> story intro -> fighter select -> co-op lobby -> Levels 1-3 with 3 players -> the Godfather -> ending.
-# Record: godot --path . -s tests/demo_full.gd --write-movie out.avi --fixed-fps 30
+# Record: godot --path . -s tests/demo_full.gd --write-movie out.avi --fixed-fps 60
+# (timings below are in 30 fps 'beats'; movement runs every 60 fps physics tick so it's smooth)
 extends SceneTree
 
 var phase := ""
-var t := 0          # frames in this phase
+var t := 0          # beats (1/30 s) in this phase
+var tick := 0
+var beat := false
 var gm
 var target
 var target_t := 0
@@ -36,8 +39,13 @@ func _key(code: int) -> void:
 	Input.parse_input_event(r)
 
 
-func _process(_d):
-	t += 1
+func _physics_process(_d):
+	tick += 1
+	beat = tick % 2 == 0
+	if beat:
+		t += 1
+	if not beat and phase != "level" and phase != "boss":
+		return
 	match phase:
 		"menu":
 			if t == 80:
@@ -92,15 +100,17 @@ func _fight() -> void:
 	var lvl: int = int(Engine.get_meta("level_index", 1))
 	# one on-purpose death in Level 1: P3's body becomes a trampoline
 	if phase == "level" and lvl == 1 and t < 150:
+		if not beat:
+			return
 		if t == 30:
 			ps[2].invuln = 0.0
 			gm.player_died(true, ps[2])
-		if t == 70 and gm.bodies.size() > 0:
+		if t == 70 and gm.bodies.size() > 0:   # P1 drops onto P3's body -> BOUNCE
 			ps[0].global_position = gm.bodies[0].global_position + Vector2(0, -50)
 			ps[0].velocity = Vector2.ZERO
 		return
 	# pick the closest enemy still standing
-	if target == null or not is_instance_valid(target) or target.has_meta("dying") or target.get("dead") == true or target_t > 170:
+	if beat and (target == null or not is_instance_valid(target) or target.has_meta("dying") or target.get("dead") == true or target_t > 170):
 		if target and is_instance_valid(target) and target_t > 170 and not target.has_meta("dying"):
 			if target.has_method("on_nail_hit") and target.get("MAX_HP") == null:
 				gm.damage_enemy(target, ps[1])
@@ -114,10 +124,11 @@ func _fight() -> void:
 			if d < bd:
 				bd = d
 				target = e
-	if target == null:
+	if target == null or not is_instance_valid(target):
 		_walk_to_exit(ps, lvl)
 		return
-	target_t += 1
+	if beat:
+		target_t += 1
 	var tp: Vector2 = target.global_position
 	var spots := [tp + Vector2(-26, -2), tp + Vector2(0, -56), tp + Vector2(26, -2)]
 	if target.get("MAX_HP") != null:          # the Godfather is big
@@ -127,10 +138,9 @@ func _fight() -> void:
 		if p.is_dead:
 			continue
 		var to: Vector2 = spots[i] - p.global_position
-		p.global_position += to.limit_length(4.5)
-		p.velocity = Vector2.ZERO
+		p.velocity = to.normalized() * minf(to.length() * 7.0, 150.0)   # glide through physics = smooth
 		p.facing = 1 if i == 0 else (-1 if i == 2 else p.facing)
-		if to.length() < 8.0:
+		if beat and to.length() < 10.0:
 			var every: int = [24, 32, 28][i]
 			if (t + i * 5) % every == 0:
 				p.attack_cd = 0.0
@@ -165,7 +175,8 @@ func _walk_to_exit(ps: Array, lvl: int) -> void:
 	if phase == "boss":
 		_next_scene()
 		return
-	walk_t += 1
+	if beat:
+		walk_t += 1
 	var rows: Array = Levels.LEVELS[lvl - 1].map
 	var ex := Vector2.ZERO
 	for y in rows.size():
@@ -175,8 +186,7 @@ func _walk_to_exit(ps: Array, lvl: int) -> void:
 	for i in ps.size():
 		var p = ps[i]
 		var to: Vector2 = ex + Vector2(i * 14 - 14, 0) - p.global_position
-		p.global_position += to.limit_length(4.0)
-		p.velocity = Vector2.ZERO
+		p.velocity = to.normalized() * minf(to.length() * 6.0, 130.0)
 		p.facing = 1 if to.x >= 0 else -1
 	if walk_t > 110:
 		walk_t = 0

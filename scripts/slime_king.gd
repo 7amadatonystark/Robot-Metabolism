@@ -208,7 +208,8 @@ func _slam() -> void:
 	if phase() == 2 and minions.size() < 3 and randf() < 0.6:
 		var m = Guard.new()
 		m.kind = MINION_GUARD
-		m.position = position + Vector2(randf_range(-40, 40), 0)
+		m.position = Vector2((left_x + right_x) / 2.0 + randf_range(-10, 10), floor_y)   # they walk out of the store door
+		_toast("BACKUP OUT OF THE STORE!", Color(1, 0.6, 0.85))
 		get_parent().add_child(m)
 		minions.append(m)
 

@@ -133,12 +133,7 @@ func _draw_buildings(ci: Node2D, s: Dictionary, seed: int, height_frac: float, c
 		x += w + rng.randf_range(4, 30)
 	# the store's giant sign
 	if style == "store":
-		var nc := Color(1.0, 0.3, 0.75)
-		var glow := 0.8 + 0.2 * sin(t * 4.0)
-		ci.draw_rect(Rect2(420, 150, 520, 120), Color(0.08, 0.02, 0.1))
-		ci.draw_rect(Rect2(420, 150, 520, 120), Color(nc, glow), false, 6.0)
-		ci.draw_string(FONT, Vector2(470, 235), "GAMES", HORIZONTAL_ALIGNMENT_LEFT, -1, 72, Color(nc, glow))
-		ci.draw_string(FONT, Vector2(500, 262), "LAST COPY INSIDE", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 0.9, 0.3, glow))
+		_storefront(ci)
 
 
 func _draw_near(ci: Node2D, s: Dictionary, seed: int) -> void:
@@ -188,3 +183,76 @@ func _crane(ci: Node2D, x: float, col: Color) -> void:
 	ci.draw_line(Vector2(x + 140, H - 288), Vector2(x + 140, H - 200), col, 2.0)
 	ci.draw_rect(Rect2(x + 128, H - 200, 24, 18), col)
 	ci.draw_circle(Vector2(x + 7, H - 306), 3, Color(1, 0.2, 0.2, 0.5 + 0.5 * sin(t * 3.0)))
+
+
+# THE GAME STORE (boss arena): the side of the store, code-drawn. Opponents walk out of its door.
+func _storefront(ci: Node2D) -> void:
+	var x0 := 250.0
+	var x1 := 1110.0
+	var top := 120.0
+	var ground := 560.0
+	var nc := Color(1.0, 0.3, 0.75)
+	var glow := 0.8 + 0.2 * sin(t * 4.0)
+	# building + bricks
+	ci.draw_rect(Rect2(x0, top, x1 - x0, ground - top), Color(0.36, 0.22, 0.30))
+	for row in int((ground - top) / 14.0):
+		var y := top + row * 14.0
+		var off := 0.0 if row % 2 == 0 else 14.0
+		var bx := x0 + off
+		while bx < x1:
+			ci.draw_rect(Rect2(bx, y, 27, 13), Color(0.42, 0.26, 0.34))
+			bx += 28.0
+	ci.draw_rect(Rect2(x0 - 10, top - 14, x1 - x0 + 20, 16), Color(0.22, 0.12, 0.20))   # roof ledge
+	# neon GAMES sign
+	ci.draw_rect(Rect2(500, 136, 360, 84), Color(0.08, 0.02, 0.1))
+	ci.draw_rect(Rect2(500, 136, 360, 84), Color(nc, glow), false, 5.0)
+	ci.draw_string(FONT, Vector2(536, 200), "GAMES", HORIZONTAL_ALIGNMENT_LEFT, -1, 56, Color(nc, glow))
+	ci.draw_string(FONT, Vector2(552, 216), "LAST COPY INSIDE", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(1, 0.9, 0.3, glow))
+	# striped awning
+	var aw_y := 250.0
+	var sx := x0 + 20.0
+	var i := 0
+	while sx < x1 - 20.0:
+		var c := Color(1.0, 0.35, 0.6) if i % 2 == 0 else Color(0.98, 0.93, 0.88)
+		ci.draw_rect(Rect2(sx, aw_y, 30, 34), c)
+		ci.draw_circle(Vector2(sx + 15, aw_y + 34), 15.0, c)       # scalloped edge
+		sx += 30.0
+		i += 1
+	ci.draw_rect(Rect2(x0 + 20, aw_y - 6, x1 - x0 - 40, 8), Color(0.25, 0.12, 0.2))
+	# two shop windows full of game boxes + the door in the middle
+	var door_x := (x0 + x1) / 2.0 - 45.0
+	for wxv in [x0 + 50.0, door_x + 140.0]:
+		var wx: float = wxv
+		var ww := 300.0
+		var wr := Rect2(wx, 320, ww, 170)
+		ci.draw_rect(wr, Color(0.12, 0.10, 0.22))
+		var rng := RandomNumberGenerator.new()
+		rng.seed = int(wx)
+		for shelf in 3:
+			var shy := 360.0 + shelf * 50.0
+			ci.draw_rect(Rect2(wx + 8, shy, ww - 16, 5), Color(0.55, 0.35, 0.25))
+			var bx2: float = wx + 14.0
+			while bx2 < wx + ww - 26.0:
+				var h := rng.randf_range(24, 34)
+				var bc := Color.from_hsv(rng.randf(), 0.6, 0.85)
+				ci.draw_rect(Rect2(bx2, shy - h, 16, h), bc)
+				ci.draw_rect(Rect2(bx2 + 2, shy - h + 3, 12, 6), Color(1, 1, 1, 0.5))    # label
+				bx2 += 20.0
+		# glass shine
+		ci.draw_line(Vector2(wx + 30, 330), Vector2(wx + 90, 480), Color(1, 1, 1, 0.12), 10.0)
+		ci.draw_rect(wr, Color(0.2, 0.1, 0.15), false, 6.0)
+	# door (opponents come out of here)
+	ci.draw_rect(Rect2(door_x, 330, 90, ground - 330), Color(0.07, 0.04, 0.10))
+	ci.draw_rect(Rect2(door_x, 330, 90, ground - 330), Color(0.2, 0.1, 0.15), false, 6.0)
+	ci.draw_rect(Rect2(door_x + 14, 350, 62, 26), Color(0.1, 0.5, 0.2))
+	ci.draw_string(FONT, Vector2(door_x + 20, 369), "OPEN", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.6, 1.0, 0.6, glow))
+	# warm hanging lamps
+	for lx in [x0 + 130.0, door_x + 45.0, x1 - 130.0]:
+		ci.draw_line(Vector2(lx, 284), Vector2(lx, 302), Color(0.1, 0.05, 0.08), 2.0)
+		ci.draw_circle(Vector2(lx, 310), 22.0, Color(1.0, 0.6, 0.2, 0.18 * glow))
+		ci.draw_circle(Vector2(lx, 310), 8.0, Color(1.0, 0.65, 0.25))
+	# potted plants
+	for px in [x0 + 20.0, door_x - 30.0, door_x + 108.0, x1 - 40.0]:
+		ci.draw_rect(Rect2(px, ground - 30, 22, 30), Color(0.55, 0.32, 0.2))
+		ci.draw_circle(Vector2(px + 11, ground - 44), 18.0, Color(0.25, 0.55, 0.3))
+		ci.draw_circle(Vector2(px + 4, ground - 56), 11.0, Color(0.32, 0.65, 0.35))
