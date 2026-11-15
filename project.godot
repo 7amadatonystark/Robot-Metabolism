@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 Music="*res://scenes/music.tscn"
 Stats="*res://scripts/stats.gd"
 Sfx="*res://scripts/sfx.gd"
+PauseMenu="*res://scripts/pause_menu.gd"
 
 [display]
 
