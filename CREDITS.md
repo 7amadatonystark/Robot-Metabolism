@@ -6,10 +6,11 @@
 - Mechanics inspired by **Hollow Knight** (Team Cherry): pogo, masks, benches, dash, Shade. Inspiration only; no Hollow Knight code or assets are used.
 - The "Vice Slime" layer is a **parody** of GTA VI conventions (wanted stars, WASTED, Mission Passed): text and colors only. No Rockstar logos, fonts, art or names are used.
 
-## Assets: 100% human-made, none AI-generated
+## Assets
 - **Brackeys Platformer Bundle** (CC0): https://brackeysgames.itch.io/brackeys-platformer-bundle
   - Sprites from asset packs credited by Brackeys; music by Sofia Thirslund; sounds by Asbjørn Thirslund; font by Jayvee Enaguas (HarvettFox96).
 - All files in `assets/` are byte-for-byte identical to the Brackeys originals (checked).
+- **Boss portraits** (`assets/boss/portrait_*.png`): cut from an expression sheet supplied by the team. **Source/artist: TODO, fill in who made it.** These are the only files not from the Brackeys bundle.
 - (Add any Kenney CC0 assets you use here.)
 
 ## Audit vs. the original tutorial (checked file by file)
