@@ -58,7 +58,20 @@ func _physics_process(_d):
 		pl.attack_cd = 0.0
 		pl._attack()
 		Input.action_release("move_down")
-	if f == 200:
+	if f == 190:
+		var kz = load("res://scenes/killzone.tscn").instantiate()
+		kz.instant_kill = true
+		var shape := CollisionShape2D.new()
+		var r := RectangleShape2D.new(); r.size = Vector2(40, 40); shape.shape = r
+		kz.add_child(shape)
+		current_scene.add_child(kz)
+		kz.global_position = pl.global_position
+		pl.invuln = 0.0
+		ok["_deaths_before"] = true
+		set_meta("d0", gm.deaths)
+	if f == 199:
+		ok["instant_kill"] = gm.deaths == get_meta("d0") + 1
+	if f == 230:
 		ok["enemy_killed"] = not is_instance_valid(slime) or slime.is_queued_for_deletion()
 		var all_ok := true
 		for k in ok:

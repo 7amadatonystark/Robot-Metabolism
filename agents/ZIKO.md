@@ -4,29 +4,35 @@ You're Ziko's coding agent. Ziko owns **the levels**: where the fun and the them
 Read `/AGENTS.md` first (hard rules + progress report). Branch name: `ziko/levels`.
 
 ## Your goal
-Make 3 short levels where the player **must die on purpose** to progress, because their body becomes a trampoline.
-A judge should understand "dying helps me bounce back" within 30 seconds of Level 1.
+Make 3 short levels that teach and combine the two "bounce back" moves:
+1. **Pogo:** down-slash off enemies and spikes.
+2. **Your own body:** die on purpose (death spikes), then bounce off your body to reach higher.
 
-## Mechanics you design around (Hollow Knight style; see /AGENTS.md)
-- Down-slash in the air on an enemy/spike = **pogo** bounce (≈ one normal jump high). You can chain pogos across a row of spikes or slimes.
-- Dash (1 air dash) crosses gaps of ~3–4 tiles.
-- Death leaves a body with your geo. It's a big bounce pad (≈ 4–5 tiles). Dying now takes 5 hits, so bodies are **rare and precious**. Put **benches** before hard parts.
+A judge should understand "dying helps me bounce back" within 60 seconds of Level 1.
 
-## Facts you need
-- Template level: `scenes/game.tscn` (GameManager + ScoreLabel, TileMap, Player with Camera2D, Killzone, Coins, Platforms, Slime).
-- Bottom pit: `Killzone` with `leaves_body = false`. Slimes (`scenes/slime.tscn`) contain a killzone that **does** leave a body.
-- Bench (checkpoint + heal): drag in `scenes/checkpoint.tscn`.
-- Spikes/hazards: an Area2D with `scripts/killzone.gd` (plus a Timer child, like `scenes/killzone.tscn`) and `leaves_body = false`. For the sprite, use a CC0 spike tile from Kenney "Pixel Platformer" (credit it in README).
-- Normal jump ≈ 2 tiles high. Bounce on a body ≈ 4–5 tiles. Hold jump while bouncing ≈ 5–6 tiles. (Tile = 16 px.)
-- Don't put a checkpoint right where the player dies (they'd respawn on the body and bounce instantly).
+## Numbers (tile = 16 px)
+- Normal jump ≈ 2 tiles up. Pogo ≈ 2 tiles up from the hit point (chainable).
+- Body bounce ≈ 4–5 tiles (hold jump ≈ 5–6). Dash ≈ 3–4 tiles across (1 air dash).
+- The player has 5 masks. Normal damage doesn't kill fast, so use **death spikes** where you want the player to die on purpose.
+
+## Building blocks
+- Template level: `scenes/game.tscn` (GameManager + ScoreLabel, TileMap, Player with Camera2D, Killzone, Coins, Platforms, Slime). Copy it for each level.
+- **Slime** (`scenes/slime.tscn`): an enemy with 2 HP that you can pogo off.
+- **Pit / hazard:** `scenes/killzone.tscn` + a CollisionShape2D, with `leaves_body = false` (costs 1 mask and returns you to the edge).
+- **Death spikes:** `scenes/killzone.tscn` + a CollisionShape2D, with **`instant_kill = true`** (instant death; your body stays exactly there). Sprite: CC0 spike tile from Kenney "Pixel Platformer" (Ziko downloads it; credit it in `CREDITS.md`).
+- **Bench:** drag in `scenes/checkpoint.tscn` (respawn here + full heal).
+- **Signs:** Label nodes in the world, like Brackeys' `Labels` node, with the Brackeys pixel font.
 
 ## Tasks (do in order, one at a time; report after each)
-0. **Pogo gallery:** in Level 1, after the wall, add a short row of 3 slimes over a pit that you cross only by pogo-chaining (sign: "Strike down. Bounce back.").
-1. **Level 1, "First Fall" (tutorial).** `scenes/level_1.tscn`: flat start, a wall ~4 tiles high with a slime patrolling in front of it. In-world labels (like Brackeys' Labels node): "Can't jump this?" → "Try dying." → "Bounce Back!" One coin on top.
-2. **Goal + level flow.** `scenes/goal.tscn`: an Area2D (use `assets/sprites/fruit.png` or a coin sprite) that loads the next level when the player touches it (`get_tree().change_scene_to_file(...)`). Use an `@export var next_level: String`.
-3. **Level 2, "Stack Up".** Two bounce puzzles, one checkpoint between them, and a moving platform (`scenes/platform.tscn`).
-4. **Level 3, "The Tower".** A vertical climb that needs **2+ bodies** stacked at different heights (slimes placed at different heights). Coins reward risky routes.
-5. **Polish pass.** Make sure all 3 levels can be finished. Count the minimum deaths for each and write them in your report.
+1. **Level 1, "First Fall"** (`scenes/level_1.tscn`):
+   a. Flat start, sign "J to strike."
+   b. One slime over a 3-tile gap: sign "Strike down. Bounce back." (pogo across).
+   c. A ledge ~5 tiles high with death spikes under it: sign "Too high? Fall here." Then the player dies, bounces off their own body, and reaches the top.
+   d. Bench before (c). Coin on top.
+2. **Goal + level flow:** `scenes/goal.tscn`, an Area2D (use `assets/sprites/fruit.png` or a coin sprite) with `@export var next_level: String` that calls `get_tree().change_scene_to_file(next_level)` when the player touches it.
+3. **Level 2, "Old Knights":** a pogo chain over 3 slimes or spikes, a dash gap, one body puzzle, a bench between sections, and a moving platform (`scenes/platform.tscn`).
+4. **Level 3, "The Tower":** a vertical climb that needs **2+ bodies** at different heights (death spikes on different floors), plus pogo sections. Coins reward risky routes.
+5. **Polish pass:** make sure all 3 levels can be finished. Report the minimum deaths per level and anything that felt unfair.
 
 ## Done when
-All 3 levels are playable start to finish, each goal loads the next level, and level 3's goal loads `scenes/win.tscn` (Mazen makes that; if it doesn't exist yet, load `scenes/level_1.tscn` for now).
+All 3 levels can be beaten start to finish, each goal loads the next level, and level 3's goal loads `scenes/win.tscn` (Mazen makes that; until then, load `scenes/level_1.tscn`).

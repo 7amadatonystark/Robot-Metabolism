@@ -8,6 +8,7 @@ You're working on **BOUNCE BACK**, a Godot 4.3 (GDScript) 2D platformer for the 
 - **Masks:** 5 health. Enemies = knockback, -1 mask. Hazards (spikes/pits) = -1 mask and respawn at the last safe ground.
 - **Geo:** coins. Enemies drop 2 geo.
 - **Benches:** checkpoint + full heal.
+- **Death spikes:** a killzone with `instant_kill = true` = instant death; your body lands exactly there (for "die on purpose" puzzles).
 - **THE TWIST (our Shade):** at 0 masks you die. Your body stays where you fell, holding all your geo, and it becomes a **bounce pad**. Strike your body to take the geo back; land on it to bounce much higher.
 
 ## Who are you working for?
@@ -21,7 +22,7 @@ You're working on **BOUNCE BACK**, a Godot 4.3 (GDScript) 2D platformer for the 
 3. Godot **4.3**, GDScript, renderer = GL Compatibility (must run in the browser on itch.io).
 4. **No AI-generated assets** (images, music, sounds). Use only `assets/` (Brackeys bundle, CC0) or CC0 packs from kenney.nl that the human downloads. Credit any new asset in `README.md`.
 5. Keep changes small. Prefer **new scripts and scenes** over editing existing ones.
-6. Useful hooks: the player is in group `"player"` (`facing`, `invuln`, `last_safe`, `take_hit()`), bodies are in group `"bounce_pad"` (`geo`), and the game manager is in group `"game_manager"` (`masks`, `MAX_MASKS`, `score` = geo, `deaths`, `respawn_point`, `player_hit(from_pos, hazard)`, `player_died()`, `set_checkpoint(pos)`, `hit_enemy(enemy, by)`). Enemies = any node with a `Killzone` child (killzone `leaves_body = true`); hazards = a killzone with `leaves_body = false`. Enemy HP is stored as meta `"hp"` (default 2).
+6. Useful hooks: the player is in group `"player"` (`facing`, `invuln`, `last_safe`, `take_hit()`), bodies are in group `"bounce_pad"` (`geo`), and the game manager is in group `"game_manager"` (`masks`, `MAX_MASKS`, `score` = geo, `deaths`, `respawn_point`, `player_hit(from_pos, hazard)`, `player_died()`, `set_checkpoint(pos)`, `hit_enemy(enemy, by)`). Enemies = any node with a `Killzone` child (killzone `leaves_body = true`); hazards = a killzone with `leaves_body = false`; death spikes = a killzone with `instant_kill = true`. Enemy HP is stored as meta `"hp"` (default 2).
 7. After changes, the game must still open and run (F5). If you can run Godot headless, run `godot --headless -s tests/test_bounce.gd` and `godot --headless -s tests/test_hk.gd`. Both must print `RESULT: PASS`.
 
 ## Required: progress report at the end of EVERY response
@@ -35,7 +36,7 @@ Task: <task number + name from your agents/ file>
 Status: <DONE | IN PROGRESS | BLOCKED>
 Done this session:
 - <file changed/created>: <what it does>
-How to test (human): <exact steps, e.g. "Open scenes/level_1.tscn, press F6, walk right into the slime">
+How to test (human): <exact steps, e.g. "Open scenes/level_1.tscn, press F6, jump over the gap and press S+J on the slime">
 Problems / needs Abdullah: <anything blocked, or "none">
 Next task: <what you'll do next>
 ```

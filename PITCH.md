@@ -1,30 +1,32 @@
 # BOUNCE BACK: Pitch (60 seconds)
 
 **Hook (5 s)**
-"In every game, dying is failure. In ours, dying is how you win."
+"In every game, dying is failure. In ours, dying is how you climb."
 
 **What it is (15 s)**
-"Bounce Back is a platformer where every time you die, your body stays behind as a trampoline.
-You respawn, run back, and bounce off your own past mistakes to reach places you could never jump to."
+"Bounce Back is a Hollow Knight-style platformer. You strike down to pogo off enemies and spikes,
+and when you die, your body stays behind with all your geo, as a trampoline.
+You come back, take your geo back, and bounce off your own past mistakes to reach places you couldn't before."
 
 **Theme (10 s)**
-"The theme is Bounce Back, so we made it literal *and* personal: you can't beat a level without failing first.
-The death counter doesn't shame you. It says 'each one is a step up.'"
+"The theme is Bounce Back, so it's in every move: pogo is a bounce, every death becomes a bounce pad,
+and the death counter isn't shame. It's your progress."
 
 **Demo (20 s)**: play Level 1 live:
-1. "This wall is too high." (try to jump, fail)
-2. "So I walk into the slime on purpose." (die, slow-mo)
-3. "My body stays here..." (respawn, run back)
-4. "...and I bounce back higher." (BOING, land on top)
+1. "Strike down on the slime..." (pogo across the gap)
+2. "This ledge is too high. So I fall here, on purpose." (death spikes, slow-mo)
+3. "My body stays, holding my geo..." (respawn at the bench, run back, strike the body: geo reclaimed)
+4. "...and I bounce back higher." (land on the body, launch to the top)
 
 **Close (10 s)**
-"Three levels, each one teaching you to fail smarter. Built in Godot by Abdullah, Ziko and Mazen.
+"Three levels that teach you to fail smarter. Built in Godot by Abdullah, Ziko and Mazen.
 Every death gets you higher."
 
 ---
 
 ## Judges' likely questions
-- **What did you build vs. the tutorial?** We started from Brackeys' public-domain beginner project for movement and art, then built the core mechanic ourselves: leaving bodies as bounce pads, respawn and checkpoints, the death counter, level design around dying on purpose, menus, and game feel.
-- **Assets?** Brackeys Platformer Bundle (CC0, human-made). No AI-generated assets.
-- **Hardest part?** Designing levels where dying is *required* but still feels fair.
-- **What next?** Spikes that leave bodies in mid-air, and a "ghost race" mode against your fewest-deaths run.
+- **What did you build vs. the tutorial?** We started from Brackeys' public-domain beginner project for basic movement and art. We built the nail attack, pogo, dash, masks, benches, hazard respawn, bodies that hold your geo and act as bounce pads, the levels, the menus and the game feel. See `CREDITS.md`.
+- **Why Hollow Knight?** Its pogo is the purest "bounce back" move in games, and its Shade (your ghost holding your money) inspired our body mechanic, except ours *helps* you.
+- **Assets?** Brackeys Platformer Bundle (CC0, human-made) + Kenney CC0. No AI-generated assets.
+- **Hardest part?** Making dying *required* but still fair: benches, death spikes placed exactly where a body is useful.
+- **What next?** More abilities (wall-jump), bosses you can only beat by pogoing, and a ghost race against your fewest-deaths run.
