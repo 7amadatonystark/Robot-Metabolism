@@ -6,6 +6,8 @@
 # Hit with the nail or shots; pogo off their heads.
 extends Node2D
 
+const Look = preload("res://scripts/look.gd")   # shared outline style
+
 const KILLZONE_SCENE = preload("res://scenes/killzone.tscn")
 const STATS := {
 	"lolli": {"hp": 2, "speed": 28.0, "height": 22.0, "hop": false},
@@ -34,6 +36,7 @@ func _ready() -> void:
 	sprite.scale = Vector2(sc, sc)
 	sprite.offset = Vector2(0, -tex.get_height() / 2.0)
 	add_child(sprite)
+	Look.outline(sprite, 0.8)
 	# hurt box (Brackeys killzone) -> touching costs a mask
 	var kz = KILLZONE_SCENE.instantiate()
 	var shape := CollisionShape2D.new()

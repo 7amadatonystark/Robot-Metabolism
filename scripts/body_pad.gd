@@ -5,6 +5,8 @@
 # Created by game_manager.gd. You don't place these by hand.
 extends StaticBody2D
 
+const Look = preload("res://scripts/look.gd")   # shared outline style
+
 var frames: SpriteFrames      # the player's sprites (set before adding to the scene)
 var flip := false
 var sprite_scale := Vector2.ONE
@@ -47,6 +49,7 @@ func _ready() -> void:
 		sprite.rotation_degrees = -90.0 if flip else 90.0   # lying down
 		sprite.position = Vector2(0, -6)
 	add_child(sprite)
+	Look.outline(sprite, 0.8)
 
 	# pop in
 	scale = Vector2(0.2, 0.2)

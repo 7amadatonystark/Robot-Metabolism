@@ -3,6 +3,8 @@
 # POGO (down-slash bounces you), dash, masks/knockback, hazard respawn, bouncing on old bodies.
 extends CharacterBody2D
 
+const Look = preload("res://scripts/look.gd")   # shared outline style
+
 const Characters = preload("res://scripts/characters.gd")
 const Projectile = preload("res://scripts/projectile.gd")
 const SOUL_COST := 33.0
@@ -167,6 +169,7 @@ func _apply_character() -> void:
 	base_scale = animated_sprite.scale
 	animated_sprite.play("idle")
 	Characters.fit_sprite(animated_sprite)
+	Look.outline(animated_sprite, 0.8)
 
 
 func _make_sfx(path: String) -> AudioStreamPlayer:

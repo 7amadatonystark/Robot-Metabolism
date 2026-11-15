@@ -4,6 +4,8 @@
 # Side hits just CLANK off. He hops at you and slams the ground; in phase 2 he spawns slimes.
 extends Node2D
 
+const Look = preload("res://scripts/look.gd")   # shared outline style
+
 const SLIME_SCENE = preload("res://scenes/slime.tscn")
 const KILLZONE_SCENE = preload("res://scenes/killzone.tscn")
 const FONT = preload("res://assets/fonts/PixelOperator8-Bold.ttf")
@@ -57,6 +59,7 @@ func _ready() -> void:
 	holder.position = Vector2(0, 4)
 	add_child(holder)
 	holder.add_child(sprite)
+	Look.outline(sprite, 1.0)
 	# contact damage (reuses the Brackeys killzone)
 	var kz = KILLZONE_SCENE.instantiate()
 	var shape := CollisionShape2D.new()

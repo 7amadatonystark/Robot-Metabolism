@@ -5,6 +5,8 @@
 #   Hit your body with the nail (or pogo it) to get your geo back. Bounce back!
 extends Node
 
+const Look = preload("res://scripts/look.gd")   # shared outline style
+
 const BodyPad = preload("res://scripts/body_pad.gd")
 const ViceLayer = preload("res://scripts/vice_layer.gd")
 const Characters = preload("res://scripts/characters.gd")
@@ -44,6 +46,7 @@ var soul := 0.0               # SOUL (Hollow Knight): +11 per nail hit, power sh
 func _ready():
 	add_to_group("game_manager")
 	_build_hud()
+	Look.add_grade(self)                   # one Vice Slime color grade over every level
 	add_child(ViceLayer.new())             # GTA VI parody layer (stars, BOUNCED, MISSION PASSED)
 	await get_tree().process_frame          # wait for the whole level to load
 	refresh_players()
@@ -209,6 +212,7 @@ func damage_enemy(enemy: Node, by: Node2D) -> void:
 # ---------------- HUD (masks + geo + deaths) ----------------
 func _build_hud() -> void:
 	var layer := CanvasLayer.new()
+	layer.layer = 2          # above the Vice color grade (layer 1)
 	add_child(layer)
 	hud = Control.new()
 	hud.position = Vector2(12, 10)
